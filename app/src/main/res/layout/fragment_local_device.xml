@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Permission banner -->
+        <LinearLayout
+            android:id="@+id/layout_permission_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/bg_surface"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PERMISSIONS REQUIRED"
+                android:textColor="@color/accent_red"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Location, Bluetooth Scan, and Bluetooth Connect permissions are needed to scan for nearby devices and match against the Kismet server."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_grant_permissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="GRANT PERMISSIONS"
+                android:textColor="@color/bg_primary"
+                android:fontFamily="monospace"
+                app:backgroundTint="@color/accent_green" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LOCAL INTERFACES"
+                android:textColor="@color/accent_green"
+                android:textSize="16sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_scan_match"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SCAN &amp; MATCH"
+                android:textColor="@color/accent_cyan"
+                android:fontFamily="monospace"
+                android:textSize="11sp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_refresh"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="REFRESH"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="monospace"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- WiFi Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp"
+            app:strokeColor="@color/phy_wifi"
+            app:strokeWidth="1dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+
+                <TextView android:text="WiFi" android:textColor="@color/phy_wifi" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="SSID" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_ssid" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="BSSID" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_bssid" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/accent_cyan" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="IP" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_ip" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="SIGNAL" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_signal" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="CHANNEL" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_channel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="SPEED" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_wifi_speed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bluetooth Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp"
+            app:strokeColor="@color/phy_bt"
+            app:strokeWidth="1dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+
+                <TextView android:text="Bluetooth" android:textColor="@color/phy_bt" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="STATE" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_bt_state" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="NAME" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_bt_name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="ADDRESS" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_bt_address" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/accent_cyan" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="5dp">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="PAIRED" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_bt_paired" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_bt_paired_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

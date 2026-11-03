@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_surface"
+    android:paddingBottom="24dp">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
+        android:background="#546E7A"
+        android:alpha="0.5" />
+
+    <!-- Name + type badge -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/tv_src_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/tv_src_type_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:background="@drawable/chip_filter_bg" />
+    </LinearLayout>
+
+    <!-- Interface + hardware -->
+    <TextView
+        android:id="@+id/tv_src_iface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="12dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:fontFamily="monospace" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2D33"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Status + packets row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/tv_src_status_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="●"
+            android:textSize="10sp"
+            android:paddingEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_src_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/tv_src_packets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="monospace" />
+    </LinearLayout>
+
+    <!-- Action buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btn_pause_resume"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <Button
+            android:id="@+id/btn_pcap"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="PCAP"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
+
+</LinearLayout>

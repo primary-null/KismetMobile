@@ -1,0 +1,55 @@
+# Gradle files
+.gradle/
+build/
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Generated files
+bin/
+gen/
+out/
+
+# Backup files
+*.bak
+*.swp
+*~
+.DS_Store
+
+# Android Studio specific files
+.idea/
+.idea_modules/
+*.iml
+*.iws
+*.ipr
+
+# IntelliJ
+*.log
+*.pyc
+*.pyo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Project-specific ignores
+.vscode/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Keystore files
+*.jks
+*.keystore
+
+# ProGuard
+proguard/
+proguard-project.txt
+
+# Lint
+lint-results*.xml
+lint-results*.html

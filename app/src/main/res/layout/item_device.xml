@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="@color/bg_surface"
+    app:cardCornerRadius="6dp"
+    app:strokeColor="@color/card_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_device_generic"
+                app:tint="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Unknown"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:fontFamily="monospace"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tv_phy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="802.11"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:background="@drawable/chip_bg"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:id="@+id/tv_mac"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AA:BB:CC:DD:EE:FF"
+                android:textColor="@color/accent_cyan"
+                android:textSize="12sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/tv_proximal_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VERIFIED PROXIMAL"
+                android:textSize="8sp"
+                android:textColor="@color/bg_surface"
+                android:backgroundTint="@color/accent_green"
+                android:fontFamily="monospace"
+                android:background="@drawable/chip_bg"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="1dp"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_source_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="8sp"
+                android:textColor="#00BFA5"
+                android:fontFamily="monospace"
+                android:background="@drawable/chip_filter_bg"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="1dp"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:text="MANUF"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="8sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_manuf"
+                    android:text="—"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:text="SIGNAL"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="8sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_signal"
+                    android:text="—"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:text="CHANNEL"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="8sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_channel"
+                    android:text="—"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:text="LAST SEEN"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="8sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_last_seen"
+                    android:text="—"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

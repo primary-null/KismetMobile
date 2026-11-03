@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/bg_primary">
+
+    <!-- LEFT: header + controls + alerts -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="&lt; BACK"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="monospace"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_green"
+                    android:textSize="15sp"
+                    android:fontFamily="monospace"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tv_campaign_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/tv_campaign_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Control buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="START"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pause"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="PAUSE"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_end"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="END"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_wigle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="WIGLE"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:textColor="@color/accent_cyan"
+                app:strokeColor="@color/accent_cyan" />
+        </LinearLayout>
+
+        <!-- Alerts -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ALERTS"
+            android:textColor="@color/text_secondary"
+            android:textSize="9sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.2"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_alerts_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No alerts fired"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            android:fontFamily="monospace" />
+
+        <!-- Timestamps -->
+        <TextView
+            android:id="@+id/tv_timestamps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:paddingTop="4dp"
+            android:paddingBottom="2dp"
+            android:visibility="gone" />
+
+        <!-- Notes -->
+        <EditText
+            android:id="@+id/et_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="notes..."
+            android:textColorHint="@color/text_secondary"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:background="@color/bg_surface"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="6dp"
+            android:layout_marginTop="6dp"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="2"
+            android:minLines="1" />
+
+        <!-- HUNT targets -->
+        <LinearLayout
+            android:id="@+id/section_hunt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TARGETS (one MAC or SSID per line)"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_hunt_targets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="AA:BB:CC:11:22:33&#10;MyNetwork"
+                android:textColorHint="@color/text_secondary"
+                android:textColor="@color/text_primary"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:background="@color/bg_surface"
+                android:padding="8dp"
+                android:inputType="textMultiLine"
+                android:maxLines="4"
+                android:minLines="2"
+                android:gravity="top|start" />
+        </LinearLayout>
+
+        <!-- SURVEY/WARDRIVING scope -->
+        <LinearLayout
+            android:id="@+id/section_scope"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CAPTURE SCOPE"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/chip_scope_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ALL"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/chip_filter_bg"
+                    android:textColor="@color/chip_text_selector"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/chip_scope_wifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WiFi"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/chip_filter_bg"
+                    android:textColor="@color/chip_text_selector"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/chip_scope_bt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BT"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/chip_filter_bg"
+                    android:textColor="@color/chip_text_selector"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ALERT rules -->
+        <LinearLayout
+            android:id="@+id/section_rules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="RULES"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="9sp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.15" />
+
+                <TextView
+                    android:id="@+id/btn_add_rule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+ ADD"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/accent_cyan"
+                    android:paddingHorizontal="4dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_rules_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No rules. Tap + ADD to create one."
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- RIGHT: device list -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <!-- Device list search -->
+        <EditText
+            android:id="@+id/et_search_devices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="search devices..."
+            android:textColorHint="@color/text_secondary"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:background="@color/bg_surface"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No devices tracked yet.\nSurvey/Wardriving campaigns auto-add while ACTIVE.\nFor others: tap a device → detail → Add to Campaign."
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:padding="16dp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingEnd="8dp"
+            android:clipToPadding="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

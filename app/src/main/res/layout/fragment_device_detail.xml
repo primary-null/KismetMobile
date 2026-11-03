@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="&lt; BACK"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="monospace"
+                android:textSize="11sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="DEVICE DETAIL"
+                android:textColor="@color/accent_green"
+                android:textSize="16sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"
+                android:gravity="center" />
+
+            <View android:layout_width="60dp" android:layout_height="1dp" />
+        </LinearLayout>
+
+        <!-- Identity card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp"
+            app:strokeColor="@color/accent_green"
+            app:strokeWidth="1dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tv_mac"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="14sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:id="@+id/tv_phy" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="@color/phy_wifi" android:textSize="11sp" android:fontFamily="monospace"
+                        android:background="@drawable/chip_bg" android:paddingHorizontal="8dp" android:paddingVertical="3dp"
+                        android:layout_marginEnd="8dp" />
+                    <TextView android:id="@+id/tv_type" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="monospace"
+                        android:background="@drawable/chip_bg" android:paddingHorizontal="8dp" android:paddingVertical="3dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Signal card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_signal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:text="SIGNAL" android:textColor="@color/text_secondary" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="8dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <ProgressBar
+                    android:id="@+id/signal_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:max="100"
+                    android:progressTint="@color/accent_green"
+                    android:progressBackgroundTint="@color/card_border"
+                    android:layout_marginBottom="12dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="CURRENT" android:textColor="@color/text_secondary" android:textSize="9sp" android:fontFamily="monospace"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_signal_last" android:textColor="@color/accent_green" android:textSize="16sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="MIN" android:textColor="@color/text_secondary" android:textSize="9sp" android:fontFamily="monospace"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_signal_min" android:textColor="@color/text_primary" android:textSize="16sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="MAX" android:textColor="@color/text_secondary" android:textSize="9sp" android:fontFamily="monospace"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_signal_max" android:textColor="@color/text_primary" android:textSize="16sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Details card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:text="DETAILS" android:textColor="@color/text_secondary" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="MANUFACTURER" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_manuf" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="CHANNEL" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_channel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="FREQUENCY" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_frequency" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="FIRST SEEN" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_first_seen" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="LAST SEEN" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_last_seen" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/row_gps" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="6dp" android:visibility="gone">
+                    <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="GPS" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace" />
+                    <TextView android:id="@+id/tv_gps" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="monospace" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Packets card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:text="TRAFFIC" android:textColor="@color/text_secondary" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="TOTAL PKT" android:textColor="@color/text_secondary" android:textSize="9sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_packets" android:textColor="@color/text_primary" android:textSize="18sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="DATA PKT" android:textColor="@color/text_secondary" android:textSize="9sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_data_packets" android:textColor="@color/text_primary" android:textSize="18sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="DATA SIZE" android:textColor="@color/text_secondary" android:textSize="9sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_data_size" android:textColor="@color/text_primary" android:textSize="18sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- WiFi AP card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_dot11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="8dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:text="802.11" android:textColor="@color/text_secondary" android:textSize="10sp"
+                    android:fontFamily="monospace" android:letterSpacing="0.2" android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="CLIENTS" android:textColor="@color/text_secondary" android:textSize="9sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_clients" android:textColor="@color/phy_wifi" android:textSize="24sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="SSIDs" android:textColor="@color/text_secondary" android:textSize="9sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:id="@+id/tv_ssids" android:textColor="@color/text_primary" android:textSize="24sp"
+                            android:fontFamily="monospace" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Add to Campaign button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_campaign"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+ ADD TO CAMPAIGN"
+            android:fontFamily="monospace"
+            android:backgroundTint="@color/bg_surface"
+            android:textColor="@color/accent_green"
+            android:layout_marginBottom="8dp"
+            app:strokeColor="@color/accent_green"
+            app:strokeWidth="1dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <!-- View Clients button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_view_clients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="VIEW CLIENTS"
+            android:fontFamily="monospace"
+            android:backgroundTint="@color/bg_surface"
+            android:textColor="@color/phy_wifi"
+            android:visibility="gone"
+            app:strokeColor="@color/phy_wifi"
+            app:strokeWidth="1dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_export_pcap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="EXPORT PCAP"
+            android:fontFamily="monospace"
+            android:backgroundTint="@color/bg_surface"
+            android:textColor="@color/accent_green"
+            android:layout_marginTop="8dp"
+            app:strokeColor="@color/accent_green"
+            app:strokeWidth="1dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
+</ScrollView>

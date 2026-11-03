@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds -->
+    <color name="bg_primary">#0F1214</color>
+    <color name="bg_surface">#1A2025</color>
+    <color name="card_border">#2C3539</color>
+
+    <!-- Text -->
+    <color name="text_primary">#CFD8DC</color>
+    <color name="text_secondary">#546E7A</color>
+
+    <!-- Accents — gun metal steel tones -->
+    <color name="accent_green">#90A4AE</color>
+    <color name="accent_cyan">#78909C</color>
+    <color name="accent_red">#EF5350</color>
+    <color name="accent_yellow">#B0BEC5</color>
+
+    <!-- PHY type colors (muted to match palette) -->
+    <color name="phy_wifi">#78909C</color>
+    <color name="phy_bt">#607D8B</color>
+    <color name="phy_sdr">#00BFA5</color>
+    <color name="phy_adsb">#8D9E9E</color>
+    <color name="phy_other">#455A64</color>
+
+    <!-- System -->
+    <color name="colorPrimary">#90A4AE</color>
+    <color name="colorPrimaryDark">#0F1214</color>
+    <color name="colorAccent">#78909C</color>
+</resources>

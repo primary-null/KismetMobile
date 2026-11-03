@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KismetMobile — Android Client for Kismet WIDS</title>
+  <style>
+    :root {
+      --bg: #0d1a1f;
+      --surface: #162028;
+      --border: #1e3040;
+      --accent: #00e5cc;
+      --green: #39ff14;
+      --text: #c8d8dc;
+      --muted: #6a8a94;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+
+    /* ── header ── */
+    header { text-align: center; padding: 72px 24px 56px; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); }
+    header p.tagline { margin-top: 10px; color: var(--muted); font-size: 1.05rem; letter-spacing: .12em; text-transform: uppercase; }
+    header p.desc { max-width: 560px; margin: 20px auto 0; color: var(--text); font-size: 1rem; }
+    .badge {
+      display: inline-block; margin-top: 28px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 16px; font-size: .85rem; color: var(--muted);
+    }
+
+    /* ── section layout ── */
+    section { max-width: 1160px; margin: 0 auto; padding: 64px 24px; }
+    section + section { border-top: 1px solid var(--border); }
+    h2 { font-size: 1.4rem; font-weight: 600; color: var(--accent); letter-spacing: .06em; margin-bottom: 32px; }
+    h2 span { color: var(--muted); font-weight: 400; }
+
+    /* ── screen grid ── */
+    .screen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+    .screen-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: transform .15s, box-shadow .15s; }
+    .screen-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.4); }
+    .screen-card img { width: 100%; display: block; }
+    .screen-card .label { padding: 12px 16px; font-size: .82rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; border-top: 1px solid var(--border); }
+    .screen-card .label strong { display: block; font-size: .95rem; color: var(--text); margin-bottom: 2px; text-transform: none; letter-spacing: 0; }
+
+    /* ── feature list ── */
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .feat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .feat-card h3 { font-size: 1rem; color: var(--green); margin-bottom: 10px; letter-spacing: .04em; }
+    .feat-card ul { list-style: none; }
+    .feat-card li { font-size: .9rem; color: var(--text); padding: 4px 0; padding-left: 14px; position: relative; }
+    .feat-card li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+    /* ── requirements ── */
+    .req-list { display: flex; flex-wrap: wrap; gap: 12px; }
+    .req-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 18px; font-size: .88rem; color: var(--text); }
+    .req-pill code { color: var(--accent); font-family: monospace; }
+
+    /* ── build block ── */
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; font-size: .88rem; color: var(--green); overflow-x: auto; }
+    code { font-family: 'Cascadia Code', 'Fira Code', monospace; }
+
+    /* ── footer ── */
+    footer { border-top: 1px solid var(--border); text-align: center; padding: 32px 24px; color: var(--muted); font-size: .85rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>KISMET<span style="color:var(--muted)">MOBILE</span></h1>
+  <p class="tagline">wireless intelligence &nbsp;·&nbsp; android client</p>
+  <p class="desc">A full-featured Android client for the <a href="https://github.com/kismetwireless/kismet" style="color:var(--accent)">Kismet</a> wireless intrusion detection system. Monitor devices, run proximity checks, stream PCAP, manage campaigns — all from your phone.</p>
+  <span class="badge">Android 8.0+ &nbsp;·&nbsp; Kotlin &nbsp;·&nbsp; Kismet REST API</span>
+</header>
+
+<!-- ── Screenshots ── -->
+<section>
+  <h2>Screens <span>/ live captures from device</span></h2>
+  <div class="screen-grid">
+
+    <div class="screen-card">
+      <img src="screenshots/connect.png" alt="Connect screen" loading="lazy" />
+      <div class="label"><strong>Connect</strong>Saved profiles · SSH tunnel toggle</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/dashboard.png" alt="Dashboard" loading="lazy" />
+      <div class="label"><strong>Dashboard</strong>Live PHY counts · server stats · pull-to-refresh</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/devices.png" alt="Device list" loading="lazy" />
+      <div class="label"><strong>Device Browser</strong>Search · filter by PHY · campaign toggle</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/device_detail.png" alt="Device detail" loading="lazy" />
+      <div class="label"><strong>Device Detail</strong>Full device info · PCAP export button</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/campaigns.png" alt="Campaigns" loading="lazy" />
+      <div class="label"><strong>Campaigns</strong>Survey / Hunt / Alert / Wardriving types</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/local.png" alt="Local Interfaces" loading="lazy" />
+      <div class="label"><strong>Local Interfaces</strong>SCAN &amp; MATCH · Second Latch BLE survey</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Fold ── -->
+<section>
+  <h2>Fold <span>/ adaptive layout</span></h2>
+  <div class="screen-grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));">
+
+    <div class="screen-card">
+      <img src="screenshots/fold_dashboard.png" alt="Fold dashboard" loading="lazy" />
+      <div class="label"><strong>Dashboard</strong>Two-column · server stats + PHY counts</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/fold_devices.png" alt="Fold device browser" loading="lazy" />
+      <div class="label"><strong>Device Browser</strong>Filters + search left · list right</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/fold_campaigns.png" alt="Fold campaigns" loading="lazy" />
+      <div class="label"><strong>Campaigns</strong>Stats left · campaign cards right</div>
+    </div>
+
+    <div class="screen-card">
+      <img src="screenshots/fold_local.png" alt="Fold local interfaces" loading="lazy" />
+      <div class="label"><strong>Local Interfaces</strong>WiFi card left · Bluetooth card right</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section>
+  <h2>Features</h2>
+  <div class="feat-grid">
+
+    <div class="feat-card">
+      <h3>Dashboard</h3>
+      <ul>
+        <li>Live PHY counts — WiFi, Bluetooth, SDR, Other</li>
+        <li>Server memory, uptime, packet totals</li>
+        <li>Pull-to-refresh for immediate sync</li>
+        <li>Long-press capture source to stream PCAP</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>Device Browser</h3>
+      <ul>
+        <li>Search by name, MAC, or manufacturer</li>
+        <li>Filter chips: ALL / WiFi / BT / SDR / Other</li>
+        <li>Campaign filter — only enrolled devices</li>
+        <li>Second Latch badge on locally-seen devices</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>Second Latch</h3>
+      <ul>
+        <li>Phone's own BLE + classic BT + WiFi scan</li>
+        <li>LOW_LATENCY mode — dense results in 12 s</li>
+        <li>RECEIVER_EXPORTED — works on Android 13+</li>
+        <li>MAC cross-reference against Kismet database</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>Campaigns</h3>
+      <ul>
+        <li>Types: Survey / Hunt / Alert / Wardriving</li>
+        <li>Lifecycle: DRAFT → ACTIVE → PAUSED → COMPLETE</li>
+        <li>Per-campaign alert rules with dedup tracking</li>
+        <li>Auto-collect matching devices while active</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>PCAP Capture</h3>
+      <ul>
+        <li>Foreground service streams .pcapng live</li>
+        <li>Scope: single source · single device · all traffic</li>
+        <li>Auto-share on stop or 50 MB cap hit</li>
+        <li>FileProvider — safe share to any app</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>WiGLE Export</h3>
+      <ul>
+        <li>WiGLE WiFi 1.4 CSV format</li>
+        <li>Covers WiFi BSSIDs and Bluetooth devices</li>
+        <li>One-tap upload via API key in Settings</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>SDR / HackRF</h3>
+      <ul>
+        <li>Live RF spectrum + waterfall from Kismet</li>
+        <li>Band filters: ALL / 2.4G / 5G / 6G</li>
+        <li>Detects installed SDR apps; links Play Store</li>
+        <li>Kali SDR tools sheet — copy-paste commands</li>
+      </ul>
+    </div>
+
+    <div class="feat-card">
+      <h3>Connectivity</h3>
+      <ul>
+        <li>SSH tunnel — forward port before connecting</li>
+        <li>WireGuard integration — launches VPN app</li>
+        <li>InterfaceGuard — verifies active interface</li>
+        <li>Saved connection profiles</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Requirements ── -->
+<section>
+  <h2>Requirements</h2>
+  <div class="req-list">
+    <span class="req-pill">Android <code>10+</code> (API 29)</span>
+    <span class="req-pill">Kismet server on port <code>2501</code></span>
+    <span class="req-pill"><code>BLUETOOTH_SCAN</code> runtime (Android 12+)</span>
+    <span class="req-pill"><code>ACCESS_FINE_LOCATION</code></span>
+    <span class="req-pill">WiFi enabled for local scan</span>
+  </div>
+</section>
+
+<!-- ── Build ── -->
+<section>
+  <h2>Build &amp; Install</h2>
+  <pre><code>./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk</code></pre>
+</section>
+
+<footer>
+  <p>Built on top of <a href="https://github.com/kismetwireless/kismet">Kismet</a> by Mike Kershaw — this app is an unofficial client.</p>
+</footer>
+
+</body>
+</html>

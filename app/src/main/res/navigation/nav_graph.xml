@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/connectFragment">
+
+    <fragment android:id="@+id/connectFragment"
+        android:name="com.kismet.mobile.ui.connect.ConnectFragment"
+        android:label="Connect">
+        <action android:id="@+id/action_connect_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/connectFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment android:id="@+id/dashboardFragment"
+        android:name="com.kismet.mobile.ui.dashboard.DashboardFragment"
+        android:label="Dashboard">
+        <action android:id="@+id/action_dashboard_to_spectrum"
+            app:destination="@id/sdrSpectrumFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment android:id="@+id/devicesFragment"
+        android:name="com.kismet.mobile.ui.devices.DevicesFragment"
+        android:label="Devices">
+        <action android:id="@+id/action_devices_to_detail"
+            app:destination="@id/deviceDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment android:id="@+id/campaignsFragment"
+        android:name="com.kismet.mobile.ui.campaigns.CampaignsFragment"
+        android:label="Campaigns">
+        <action android:id="@+id/action_campaigns_to_campaign_detail"
+            app:destination="@id/campaignDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment android:id="@+id/localDeviceFragment"
+        android:name="com.kismet.mobile.ui.local.LocalDeviceFragment"
+        android:label="Local" />
+
+    <fragment android:id="@+id/deviceDetailFragment"
+        android:name="com.kismet.mobile.ui.detail.DeviceDetailFragment"
+        android:label="Device Detail">
+        <argument android:name="device" app:argType="com.kismet.mobile.model.Device" />
+        <action android:id="@+id/action_detail_to_clients"
+            app:destination="@id/clientsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment android:id="@+id/clientsFragment"
+        android:name="com.kismet.mobile.ui.clients.ClientsFragment"
+        android:label="Clients">
+        <argument android:name="apName" app:argType="string" android:defaultValue="AP" />
+    </fragment>
+
+    <fragment android:id="@+id/sdrSpectrumFragment"
+        android:name="com.kismet.mobile.sdr.SdrSpectrumFragment"
+        android:label="RF Spectrum" />
+
+    <fragment android:id="@+id/campaignDetailFragment"
+        android:name="com.kismet.mobile.ui.campaigns.CampaignDetailFragment"
+        android:label="Campaign Detail">
+        <argument android:name="campaignId" app:argType="string" />
+        <argument android:name="campaignName" app:argType="string" android:defaultValue="" />
+    </fragment>
+
+    <fragment android:id="@+id/settingsFragment"
+        android:name="com.kismet.mobile.ui.settings.SettingsFragment"
+        android:label="Settings" />
+
+</navigation>
