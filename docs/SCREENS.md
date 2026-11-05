@@ -52,7 +52,7 @@
 **Layout:** `fragment_campaigns.xml`  
 **Adapter:** `CampaignAdapter.kt`
 
-- FAB → type picker (Survey / Hunt / Alert / Wardriving) → name dialog → create
+- FAB → type picker (Survey / Hunt / Wardriving) → name dialog → create; stored legacy Alert campaigns have disabled rules
 - List shows type badge (color-coded), status chip, alert count
 - Tap → CampaignDetailFragment
 

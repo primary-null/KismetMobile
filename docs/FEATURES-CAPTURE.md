@@ -69,6 +69,8 @@ MAC,SSID,AuthMode,FirstSeen,Channel,RSSI,CurrentLatitude,CurrentLongitude,...
 
 Handles both WiFi (uses BSSID/SSID/channel) and Bluetooth devices (type="BT"). Quotes CSV separators and double quotes, flattens embedded line breaks, and formats timestamps in UTC. Coordinates default to the Kismet location; explicit caller coordinates override it. WiFi AuthMode is left empty because the model does not provide authentication data.
 
+This CSV is an interchange format for WiGLE, not a spreadsheet-safe export. Observed SSIDs are preserved rather than prefixed with an apostrophe. Untrusted names can start with formula characters (`=`, `+`, `-`, `@`); import identifiers as text with formula evaluation disabled when inspecting them in a spreadsheet.
+
 ### WiGLE Upload Flow (CampaignDetailFragment)
 
 1. Load `WigleProfile` from AppPrefs — abort with Snackbar if empty

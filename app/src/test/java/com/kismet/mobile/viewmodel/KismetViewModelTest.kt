@@ -12,6 +12,26 @@ import org.junit.Test
 
 class KismetViewModelTest {
 
+    @Test
+    fun `search tolerates explicit null MAC PHY and manufacturer from server JSON`() {
+        val viewModel = KismetViewModel(mockk<android.app.Application>(relaxed = true))
+        val device = com.google.gson.Gson().fromJson("""{
+            "kismet.device.base.key":"device",
+            "kismet.device.base.name":"Cafe",
+            "kismet.device.base.macaddr":null,
+            "kismet.device.base.phyname":null,
+            "kismet.device.base.manuf":null
+        }""", Device::class.java)
+        val field = KismetViewModel::class.java.getDeclaredField("_devices").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val devices = field.get(viewModel) as androidx.lifecycle.MutableLiveData<List<Device>>
+        devices.value = listOf(device)
+        viewModel.setFilter("not present")
+        assertEquals(emptyList<Device>(), viewModel.filteredDevices())
+        viewModel.setFilter("cafe")
+        assertEquals(listOf(device), viewModel.filteredDevices())
+    }
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 

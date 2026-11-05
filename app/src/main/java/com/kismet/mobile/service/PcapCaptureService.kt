@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.Context
+import android.content.ClipData
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -22,6 +23,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import java.io.File
 import java.io.FileOutputStream
 
@@ -29,6 +31,8 @@ class PcapCaptureService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var job: Job? = null
+    private var latestStartId = 0
+    private var destroyed = false
 
     companion object {
         const val CHANNEL_ID = "pcap_capture"
@@ -40,6 +44,7 @@ class PcapCaptureService : Service() {
         const val EXTRA_PASS = "pass"
         const val ACTION_STOP = "STOP"
         private const val NOTIF_ID = 42
+        private const val READY_NOTIF_ID = 43
 
         fun start(context: Context, intent: Intent) {
             val manager = context.getSystemService(NotificationManager::class.java)
@@ -59,21 +64,25 @@ class PcapCaptureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        latestStartId = startId
         if (intent?.action == ACTION_STOP) {
-            stopSelf()
+            job?.cancel()
+            stopSelf(startId)
             return START_NOT_STICKY
         }
-
-        // Repeated taps must not orphan another stream or its output file.
-        if (job?.isActive == true) return START_NOT_STICKY
 
         try {
             startForeground(NOTIF_ID, buildNotif("Capturing packets…"))
         } catch (e: Exception) {
             e.printStackTrace()
-            stopSelf()
+            job?.cancel()
+            stopSelf(startId)
             return START_NOT_STICKY
         }
+
+        // Also retain ownership while a cancelled stream is closing its output.
+        // Every repeated foreground start is promoted above and owned by this stream.
+        if (job?.isCompleted == false) return START_NOT_STICKY
 
         val uuid = intent?.getStringExtra(EXTRA_UUID)
         val deviceKey = intent?.getStringExtra(EXTRA_DEVICE_KEY)
@@ -92,12 +101,14 @@ class PcapCaptureService : Service() {
                     repo.streamPcap(out, uuid, deviceKey)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (e !is CancellationException) e.printStackTrace()
             } finally {
                 withContext(NonCancellable + Dispatchers.Main) {
+                    if (!destroyed) stopForeground(STOP_FOREGROUND_REMOVE)
                     if (file.exists() && file.length() > 0) notifyCaptureReady(file)
                     else file.delete()
-                    stopSelf()
+                    // Includes repeated starts ignored while this same stream owned the service.
+                    if (!destroyed) stopSelf(latestStartId)
                 }
             }
         }
@@ -106,24 +117,30 @@ class PcapCaptureService : Service() {
     }
 
     override fun onDestroy() {
+        destroyed = true
         scope.cancel()
         super.onDestroy()
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {
-        stopSelf()
+        job?.cancel()
+        stopSelf(latestStartId)
     }
 
     private fun notifyCaptureReady(file: File) {
         try {
-            stopForeground(STOP_FOREGROUND_DETACH)
             val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+            val grant = ClipData.newRawUri("Kismet capture", uri)
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/octet-stream"
                 putExtra(Intent.EXTRA_STREAM, uri)
+                clipData = grant
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            val chooser = Intent.createChooser(shareIntent, "Open PCAP in…")
+            val chooser = Intent.createChooser(shareIntent, "Open PCAP in…").apply {
+                clipData = grant
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             val pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -138,7 +155,7 @@ class PcapCaptureService : Service() {
                 .setAutoCancel(true)
                 .build()
             val nm = getSystemService(NotificationManager::class.java)
-            nm.notify(NOTIF_ID, notif)
+            nm.notify(READY_NOTIF_ID, notif)
         } catch (e: Exception) {
             e.printStackTrace()
         }

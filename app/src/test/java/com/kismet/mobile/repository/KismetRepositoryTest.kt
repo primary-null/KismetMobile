@@ -14,8 +14,52 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
 import java.io.OutputStream
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import okhttp3.ResponseBody
+import okio.Source
+import okio.Buffer
+import okio.Timeout
+import okio.buffer
 
 class KismetRepositoryTest {
+    @Test fun `cancelling a blocked capture closes its body without waiting for a read timeout`() = runBlocking {
+        val entered = CountDownLatch(1)
+        val released = CountDownLatch(1)
+        val closed = AtomicBoolean(false)
+        val source = object : Source {
+            override fun read(sink: Buffer, byteCount: Long): Long {
+                entered.countDown()
+                check(released.await(5, TimeUnit.SECONDS))
+                throw java.io.IOException("closed")
+            }
+            override fun close() { closed.set(true); released.countDown() }
+            override fun timeout() = Timeout.NONE
+        }.buffer()
+        val body = object : ResponseBody() {
+            override fun contentType() = null
+            override fun contentLength() = -1L
+            override fun source() = source
+        }
+        val api = mockk<KismetApi>()
+        coEvery { api.streamAllPcap() } returns Response.success(body)
+        val capture = launch(Dispatchers.IO) { KismetRepository(api).streamPcap(ByteArrayOutputStream()) }
+        try {
+            assertTrue(entered.await(2, TimeUnit.SECONDS))
+            capture.cancel()
+            withTimeout(2_000) { capture.join() }
+            assertTrue(closed.get())
+        } finally {
+            released.countDown()
+            capture.cancel()
+        }
+    }
+
     @Test fun `source definition is valid JSON with quotes and backslashes`() = runBlocking {
         val api = mockk<KismetApi>()
         val body = slot<String>()

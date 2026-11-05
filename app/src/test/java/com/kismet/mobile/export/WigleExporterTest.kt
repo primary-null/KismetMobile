@@ -9,6 +9,14 @@ import org.junit.Test
 class WigleExporterTest {
 
     @Test
+    fun `WiGLE interchange preserves formula-like SSIDs without adding identifier characters`() {
+        for (name in listOf("=1+1", "+guest", "-guest", "@guest")) {
+            val device = Device(mac = "AA:BB:CC:DD:EE:FF", name = name, phyName = "IEEE802.11")
+            assertTrue(WigleExporter.toCsv(listOf(device)).lines()[2].startsWith("AA:BB:CC:DD:EE:FF,$name,,"))
+        }
+    }
+
+    @Test
     fun `toCsv correctly formats wifi and bluetooth devices`() {
         val wifiDevice = Device(
             key = "WIFI1",

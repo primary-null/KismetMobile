@@ -15,6 +15,7 @@ object SshTunnel {
     private var localPort: Int = -1
     private var serverSocket: ServerSocket? = null
     private var target: List<String>? = null
+    @Volatile private var forwarderThread: Thread? = null
 
     suspend fun connect(
         host: String,
@@ -26,7 +27,8 @@ object SshTunnel {
         trustDirectory: File,
     ): Int = withContext(Dispatchers.IO) {
         val requestedTarget = listOf(host, sshPort.toString(), username, remoteApiPort.toString())
-        if (sshClient?.isConnected == true && target == requestedTarget) {
+        if (sshClient?.isConnected == true && target == requestedTarget &&
+            serverSocket?.isClosed == false && forwarderThread?.isAlive == true) {
             return@withContext localPort
         }
         disconnect()
@@ -82,9 +84,16 @@ object SshTunnel {
             )
 
             Thread({
-                try { forwarder.listen() } catch (_: Exception) {}
+                try {
+                    forwarder.listen()
+                } catch (e: Exception) {
+                    if (!ss.isClosed) Log.w(TAG, "SSH forwarding stopped", e)
+                } finally {
+                    runCatching { ss.close() }
+                }
             }, "kismet-ssh-tunnel").also {
                 it.isDaemon = true
+                forwarderThread = it
                 it.start()
             }
 
@@ -94,6 +103,7 @@ object SshTunnel {
             runCatching { socket?.close() }
             runCatching { ssh.close() }
             serverSocket = null
+            forwarderThread = null
             localPort = -1
             throw e
         }
@@ -107,6 +117,7 @@ object SshTunnel {
         serverSocket = null
         localPort = -1
         target = null
+        forwarderThread = null
         try { socket?.close() } catch (_: Exception) { }
         if (client != null) {
             Thread({

@@ -12,6 +12,9 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import java.io.OutputStream
 
 sealed class Result<out T> {
@@ -159,18 +162,27 @@ class KismetRepository(private val api: KismetApi) {
             if (!response.isSuccessful || response.body() == null)
                 return@withContext Result.Error("${response.code()}")
             val body = response.body()!!
-            var bytes = 0L
-            val buf = ByteArray(8192)
-            body.use {
-                val input = it.byteStream()
-                var read: Int
-                val limit = 50L * 1024 * 1024
-                while (bytes < limit) {
-                    currentCoroutineContext().ensureActive()
-                    read = input.read(buf, 0, minOf(buf.size.toLong(), limit - bytes).toInt())
-                    if (read == -1) break
-                    outputStream.write(buf, 0, read)
-                    bytes += read
+            val captureContext = currentCoroutineContext()
+            val bytes = suspendCancellableCoroutine<Long> { continuation ->
+                // Cancellation may arrive while read() blocks, before the next loop check.
+                continuation.invokeOnCancellation { runCatching { body.close() } }
+                try {
+                    var copied = 0L
+                    val buf = ByteArray(8192)
+                    val limit = 50L * 1024 * 1024
+                    body.use {
+                        val input = it.byteStream()
+                        while (copied < limit) {
+                            captureContext.ensureActive()
+                            val read = input.read(buf, 0, minOf(buf.size.toLong(), limit - copied).toInt())
+                            if (read == -1) break
+                            outputStream.write(buf, 0, read)
+                            copied += read
+                        }
+                    }
+                    continuation.resume(copied)
+                } catch (e: Exception) {
+                    continuation.resumeWithException(e)
                 }
             }
             Result.Success(bytes)

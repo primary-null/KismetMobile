@@ -127,6 +127,7 @@ To install on a chosen emulator or device, run `adb -s <serial> install -r <apk-
 - Saved server credentials, SSH keys, and WiGLE credentials are stored in private app preferences without encryption. Prefer temporary credentials and remove saved profiles when finished. See [storage](docs/STORAGE.md).
 - SSH uses trust on first use: the first host key is pinned in private app storage, and a changed key is rejected. Make the first connection on a trusted network and verify the server independently. There is no in-app key reset; an intentional server key change currently requires clearing app data, which also removes saved profiles and campaigns.
 - WiGLE upload sends campaign identifiers and location data to a third-party service when explicitly requested.
+- WiGLE CSV preserves observed identifiers, including names beginning with spreadsheet formula characters. If inspecting a file in a spreadsheet, import identifier columns as text and disable formula evaluation; CSV quoting alone does not prevent formula execution.
 - Wardriving uses location supplied by Kismet; this app does not add phone GPS fixes to exports.
 - Local scans depend on Android permissions, enabled radios/location services, and platform scan throttling.
 - JVM tests and lint do not establish live-server compatibility or physical-device acceptance. See [security reporting](SECURITY.md).

@@ -319,9 +319,9 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
             }
             val matchesQ = q.isEmpty() ||
                 d.displayName.lowercase().contains(q) ||
-                d.mac.lowercase().contains(q) ||
-                d.phyName.lowercase().contains(q) ||
-                d.manufacturer.lowercase().contains(q)
+                d.mac.orEmpty().lowercase().contains(q) ||
+                d.phyName.orEmpty().lowercase().contains(q) ||
+                d.manufacturer.orEmpty().lowercase().contains(q)
                 
             val matchesCamp = if (campOnly) {
                 val activeCampaigns = _campaigns.value?.filter { it.status == com.kismet.mobile.model.CampaignStatus.ACTIVE } ?: emptyList()
