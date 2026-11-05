@@ -2,19 +2,21 @@
 
 An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wireless intrusion detection system.
 
-![Version](https://img.shields.io/badge/version-1.3.1-blue) ![Android](https://img.shields.io/badge/Android-10%2B-green) ![API](https://img.shields.io/badge/API-29%2B-brightgreen) ![Foldable](https://img.shields.io/badge/foldable-ready-purple)
+![Version](https://img.shields.io/badge/version-1.4.0--rc1-blue) ![Android](https://img.shields.io/badge/Android-10%2B-green) ![API](https://img.shields.io/badge/API-29%2B-brightgreen) ![Foldable](https://img.shields.io/badge/foldable-ready-purple)
 
-**[Live demo / screenshots →](https://primary-null.github.io/KismetMobile/)**
-<br>
-**[📥 Download APK →](https://github.com/primary-null/KismetMobile/releases)**
+Browse the [screenshot gallery](docs/index.html) or build the app locally using the instructions below. No hosted demo or APK download is currently available.
+
+This is an unofficial Kismet client. Version **1.4.0-rc1** is a release candidate; debug builds are for evaluation.
 
 ---
 
 ## Screenshots
 
-| Connect | Dashboard | Devices |
+These captures show an earlier version using synthetic demo data. The [large-screen dashboard](docs/screenshots/fold_dashboard.png) shows the dashboard; the portrait gallery focuses on connection and device screens.
+
+| Connect | Local Interfaces | Devices |
 |---|---|---|
-| ![Connect](docs/screenshots/connect.png) | ![Dashboard](docs/screenshots/dashboard.png) | ![Devices](docs/screenshots/devices.png) |
+| ![Connect](docs/screenshots/connect.png) | ![Local Interfaces](docs/screenshots/local.png) | ![Devices](docs/screenshots/devices.png) |
 
 | Device Detail | Campaigns | Local Interfaces |
 |---|---|---|
@@ -54,15 +56,17 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 - Requires `BLUETOOTH_SCAN` + `BLUETOOTH_CONNECT` at runtime (Android 12+)
 
 ### Campaigns
-- Four types: **Survey** / **Hunt** / **Alert** / **Wardriving**
+- Three supported types: **Survey** / **Hunt** / **Wardriving**
 - Lifecycle: `DRAFT` → `ACTIVE` → `PAUSED` → `COMPLETE`
-- Per-campaign alert rules with deduplication (fired alerts never repeat)
+- Hunt campaigns record matching MACs or SSIDs once per device
+- Legacy Alert campaigns remain stored, but rule execution and creation are disabled in this candidate
 - Auto-collects matching devices while a campaign is active
 
 ### PCAP Capture
 - `PcapCaptureService` foreground service streams a live `.pcapng` from the Kismet server
 - Scope to a datasource UUID, a device key, or all traffic
-- Stops automatically at 50 MB; auto-shares the file via `FileProvider` on stop
+- Stops automatically at 50 MiB; tap the completion notification to share the file via `FileProvider`
+- Capture starts only when notifications are enabled; Android 13+ also requires notification permission
 
 ### WiGLE Export
 - Converts campaign devices to **WiGLE WiFi 1.4 CSV** format (WiFi BSSIDs + Bluetooth MACs)
@@ -70,7 +74,7 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 
 ### SDR / HackRF Integration
 - Detects installed Android SDR apps (RF Analyzer, SDR Touch, SDR++, CubicSDR) — links to Play Store if missing
-- Live RF spectrum + waterfall view from Kismet's `/channels/channels.json`
+- Channel signal and packet activity with a waterfall view from Kismet's `/channels/channels.json` (not a raw RF spectrum analyzer)
 - Band filter chips: ALL / 2.4G / 5G / 6G
 - Kali SDR Tools sheet — copy-to-clipboard source strings and run commands for hackrf_sweep, rtl_433, dump1090, gnuradio, urh, inspectrum, multimon-ng
 
@@ -85,8 +89,8 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 - Saved connection profiles with one-tap reconnect
 
 ### Adaptive Layout
-- **Landscape** — Dashboard and Connect switch to a two-column layout; all stats and controls stay on screen without scrolling
-- **Foldable / large screen** — screens ≥ 600dp wide (e.g. Galaxy Z Fold inner display) automatically use the two-column layout in portrait via `WindowSizeClass`
+- **Landscape** — Dashboard and Connect switch to a two-column layout
+- **Foldable / large screen** — screens ≥ 600dp wide automatically use the large-screen resource layouts
 - **Tabletop mode** — when a foldable is half-opened with a horizontal hinge, content is pushed above the fold using `WindowInfoTracker` / `FoldingFeature`
 
 ---
@@ -99,10 +103,33 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 
 ## Build
 
-```bash
-./gradlew assembleStandardDebug
-adb install -r app/build/outputs/apk/standard/debug/app-standard-debug.apk
+Use JDK 17 or 21 and an Android SDK containing platform 36 and Build Tools 36.0.0. The Gradle wrapper downloads the project's Gradle distribution.
+
+On Windows (PowerShell):
+
+```powershell
+.\gradlew.bat :app:assembleDebug :app:testStandardDebugUnitTest :app:testDemoDebugUnitTest :app:lintStandardDebug :app:lintDemoDebug
 ```
+
+On macOS or Linux:
+
+```bash
+./gradlew :app:assembleDebug :app:testStandardDebugUnitTest :app:testDemoDebugUnitTest :app:lintStandardDebug :app:lintDemoDebug
+```
+
+The standard APK is `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. The offline demo APK is `app/build/outputs/apk/demo/debug/app-demo-debug.apk` and uses a separate application ID. Both debug APKs use the local Android debug key. Release builds are unsigned until an owner supplies release signing outside the repository.
+
+To install on a chosen emulator or device, run `adb -s <serial> install -r <apk-path>`. See [testing](docs/TESTING.md) for validation scope and manual checks.
+
+## Security and limitations
+
+- Direct Kismet connections use HTTP Basic authentication over cleartext HTTP. Use a trusted network or an independently verified VPN/SSH connection; do not expose the API to an untrusted network.
+- Saved server credentials, SSH keys, and WiGLE credentials are stored in private app preferences without encryption. Prefer temporary credentials and remove saved profiles when finished. See [storage](docs/STORAGE.md).
+- SSH uses trust on first use: the first host key is pinned in private app storage, and a changed key is rejected. Make the first connection on a trusted network and verify the server independently. There is no in-app key reset; an intentional server key change currently requires clearing app data, which also removes saved profiles and campaigns.
+- WiGLE upload sends campaign identifiers and location data to a third-party service when explicitly requested.
+- Wardriving uses location supplied by Kismet; this app does not add phone GPS fixes to exports.
+- Local scans depend on Android permissions, enabled radios/location services, and platform scan throttling.
+- JVM tests and lint do not establish live-server compatibility or physical-device acceptance. See [security reporting](SECURITY.md).
 
 ## Usage
 

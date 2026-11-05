@@ -75,12 +75,12 @@
   <h1>KISMET<span style="color:var(--muted)">MOBILE</span></h1>
   <p class="tagline">wireless intelligence &nbsp;·&nbsp; android client</p>
   <p class="desc">A full-featured Android client for the <a href="https://github.com/kismetwireless/kismet" style="color:var(--accent)">Kismet</a> wireless intrusion detection system. Monitor devices, run proximity checks, stream PCAP, manage campaigns — all from your phone.</p>
-  <span class="badge">Android 8.0+ &nbsp;·&nbsp; Kotlin &nbsp;·&nbsp; Kismet REST API</span>
+  <span class="badge">Android 10+ &nbsp;·&nbsp; Kotlin &nbsp;·&nbsp; Kismet REST API</span>
 </header>
 
 <!-- ── Screenshots ── -->
 <section>
-  <h2>Screens <span>/ live captures from device</span></h2>
+  <h2>Screens <span>/ earlier version with synthetic demo data</span></h2>
   <div class="screen-grid">
 
     <div class="screen-card">
@@ -89,7 +89,7 @@
     </div>
 
     <div class="screen-card">
-      <img src="screenshots/dashboard.png" alt="Dashboard" loading="lazy" />
+      <img src="screenshots/fold_dashboard.png" alt="Dashboard" loading="lazy" />
       <div class="label"><strong>Dashboard</strong>Live PHY counts · server stats · pull-to-refresh</div>
     </div>
 
@@ -182,9 +182,9 @@
     <div class="feat-card">
       <h3>Campaigns</h3>
       <ul>
-        <li>Types: Survey / Hunt / Alert / Wardriving</li>
+        <li>Types: Survey / Hunt / Wardriving</li>
         <li>Lifecycle: DRAFT → ACTIVE → PAUSED → COMPLETE</li>
-        <li>Per-campaign alert rules with dedup tracking</li>
+        <li>Hunt matches recorded once per device; legacy Alert rules disabled</li>
         <li>Auto-collect matching devices while active</li>
       </ul>
     </div>
@@ -194,7 +194,7 @@
       <ul>
         <li>Foreground service streams .pcapng live</li>
         <li>Scope: single source · single device · all traffic</li>
-        <li>Auto-share on stop or 50 MB cap hit</li>
+        <li>Tap the completion notification to share; 50 MiB cap</li>
         <li>FileProvider — safe share to any app</li>
       </ul>
     </div>
@@ -211,7 +211,7 @@
     <div class="feat-card">
       <h3>SDR / HackRF</h3>
       <ul>
-        <li>Live RF spectrum + waterfall from Kismet</li>
+        <li>Channel activity + waterfall from Kismet (not raw RF spectrum)</li>
         <li>Band filters: ALL / 2.4G / 5G / 6G</li>
         <li>Detects installed SDR apps; links Play Store</li>
         <li>Kali SDR tools sheet — copy-paste commands</li>
@@ -246,8 +246,8 @@
 <!-- ── Build ── -->
 <section>
   <h2>Build &amp; Install</h2>
-  <pre><code>./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk</code></pre>
+  <pre><code>./gradlew :app:assembleStandardDebug
+adb -s &lt;serial&gt; install -r app/build/outputs/apk/standard/debug/app-standard-debug.apk</code></pre>
 </section>
 
 <footer>

@@ -15,7 +15,7 @@ val intent = Intent(ctx, PcapCaptureService::class.java).apply {
     putExtra(PcapCaptureService.EXTRA_USER, username)
     putExtra(PcapCaptureService.EXTRA_PASS, password)
 }
-ctx.startForegroundService(intent)
+PcapCaptureService.start(ctx, intent)
 ```
 
 Pass either `EXTRA_UUID` (capture one source) or `EXTRA_DEVICE_KEY` (capture one device) or neither (capture all packets).
@@ -24,9 +24,9 @@ Pass either `EXTRA_UUID` (capture one source) or `EXTRA_DEVICE_KEY` (capture one
 
 Send `Intent(action = "STOP")` to the service, or the service stops itself after:
 - Stream ends (server closes connection)
-- 50 MB written (`streamPcap` cap in repository)
+- 50 MiB written (`streamPcap` cap in repository)
 
-On destroy: shares the file via `FileProvider` + `ACTION_SEND` chooser if file is non-empty.
+After the stream and output file close, a completion notification opens the `FileProvider` + `ACTION_SEND` chooser for a non-empty file. Repeated starts are ignored while a capture is active. Starting capture requires notifications to be enabled. Android 15+ foreground-service timeouts stop the service.
 
 ### Manifest requirements
 
@@ -63,11 +63,11 @@ WigleExporter.toCsv(devices, latitude, longitude): String
 
 Output format:
 ```
-WigleWifi-1.4,appRelease=KismetMobile,...
+WigleWifi-1.4,appRelease=KismetApp,...
 MAC,SSID,AuthMode,FirstSeen,Channel,RSSI,CurrentLatitude,CurrentLongitude,...
 ```
 
-Handles both WiFi (uses BSSID/SSID/channel) and Bluetooth devices (type="BT").
+Handles both WiFi (uses BSSID/SSID/channel) and Bluetooth devices (type="BT"). Quotes CSV separators and double quotes, flattens embedded line breaks, and formats timestamps in UTC. Coordinates default to the Kismet location; explicit caller coordinates override it. WiFi AuthMode is left empty because the model does not provide authentication data.
 
 ### WiGLE Upload Flow (CampaignDetailFragment)
 

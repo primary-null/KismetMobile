@@ -51,14 +51,10 @@ Incremental device fetch uses `lastPollTime` (Unix seconds). New devices are app
 
 `runCampaignAlerts(newDevices)` — called on every poll tick, only for ACTIVE campaigns:
 
-- **SURVEY / WARDRIVING**: auto-adds all new devices to `campaign.deviceKeys`
-- **HUNT / ALERT**: evaluates each `AlertRule` against each new device:
-  - `NEW_DEVICE` → always fires
-  - `MAC_SEEN` → device.mac equals rule.value (case-insensitive)
-  - `SSID_SEEN` → device.displayName contains rule.value
-  - `SIGNAL_THRESHOLD` → lastSignal ≥ rule.value.toInt()
-  - `CLIENT_COUNT` → dot11.numClients ≥ rule.value.toInt()
-- Deduplicates by `(deviceKey, ruleIndex)` before adding to `firedAlerts`
+- **SURVEY / WARDRIVING**: auto-adds new devices, respecting the survey PHY scope.
+- **HUNT**: matches nonblank target MACs or SSID substrings and records each device once.
+- **ALERT**: legacy records are retained; rule execution and new Alert campaign creation are disabled.
+- Campaign updates copy the lists and publish on the main thread to avoid mutating the previous UI snapshot.
 
 ## PHY Classification (companion object)
 
@@ -71,7 +67,7 @@ isSDR(phy)       → contains "ADSB" | "ADS-B" | "UAV" | "RTL" | "SDR" | "Spectr
 ## Second Latch
 
 ```kotlin
-suspend fun runLocalScan()   // suspends ~12s for BT discovery
+suspend fun runLocalScan()   // WiFi scan waits up to 8s, then BT discovery waits up to 12s
 fun localConfirmCount(): Int // reads current localSightings size
 ```
 

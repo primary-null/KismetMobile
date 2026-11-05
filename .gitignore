@@ -1,5 +1,6 @@
 # Gradle files
 .gradle/
+.kotlin/
 build/
 *.apk
 *.aar
@@ -45,6 +46,12 @@ Thumbs.db
 # Keystore files
 *.jks
 *.keystore
+*.p12
+*.pem
+key.properties
+keystore.properties
+*.local.md
+.local-review/
 
 # ProGuard
 proguard/

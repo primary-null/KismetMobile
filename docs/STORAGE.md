@@ -43,6 +43,6 @@ Fields are set in SettingsFragment and consumed in CampaignDetailFragment's `upl
 ## Notes
 
 - SharedPreferences name: `"kismet_prefs"` (default — check AppPrefs constructor)
-- No encryption — credentials stored as plaintext. Internal use only.
+- No encryption: credentials and private keys are stored in private app preferences. Cloud backup and device transfer of preferences and internal files are disabled. Device compromise can still expose them. SSH first-use pins are stored under private internal files; clearing app data removes them along with profiles and campaigns.
 - ViewModel always calls `refreshProfiles()` / `refreshCampaigns()` after mutating AppPrefs  
   so LiveData stays in sync with on-disk state.

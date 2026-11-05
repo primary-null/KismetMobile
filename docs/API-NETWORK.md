@@ -2,7 +2,7 @@
 
 ## KismetApi  (`api/KismetApi.kt`)
 
-All endpoints talk to `http://{host}:{port}/`.  
+All endpoints talk to `http://{host}:{port}/`.
 Retrofit with Gson converter. Auth via `@Header("Authorization")` Basic.
 
 | Method | Endpoint | Returns |
@@ -27,7 +27,7 @@ KismetClient.build(host, port, username, password)
 
 ## WigleApi  (`api/WigleApi.kt`)
 
-Base URL: `https://api.wigle.net/`  
+Base URL: `https://api.wigle.net/`
 Auth: Basic (`apiName:apiToken` base64).
 
 ```kotlin
@@ -52,11 +52,11 @@ Key methods:
 - `checkLogin()` — GET system status, used as auth probe
 - `getSystemStatus()`, `getAllSources()`, `getAllPhys()`, `getAllDevices()`, `getDevicesSince(ts)`
 - `setSourceHop(uuid)` — POST `{"hop":true}` to set_channel
-- `streamPcap(outputStream, uuid?, deviceKey?)` — streams pcapng; 50 MB cap; picks endpoint by which param is non-null
+- `streamPcap(outputStream, uuid?, deviceKey?)` — streams pcapng; 50 MiB cap; picks endpoint by which param is non-null
 
 ## SshTunnel  (`sdr/SshTunnel.kt`)
 
-Uses **sshj** library.  
-`SshTunnel.connect(host, sshPort, username, password?, remoteApiPort)` → returns local port number of the forwarded tunnel.  
-`SshTunnel.disconnect()` closes the session.  
+Uses **sshj** with trust-on-first-use host-key pins stored in the app-private `trustDirectory`. Changed keys are rejected; the first connection requires a trusted network and independent server verification. The forwarding socket binds only to loopback.
+`SshTunnel.connect(host, sshPort, username, password?, privateKey?, remoteApiPort, trustDirectory)` → returns local port number of the forwarded tunnel.
+`SshTunnel.disconnect()` closes the session.
 Used by `KismetViewModel.connect()` when `profile.useSsh == true`; actual host becomes `127.0.0.1`, port becomes the tunnel's local port.
