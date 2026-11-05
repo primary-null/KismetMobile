@@ -4,9 +4,9 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 
 ![Version](https://img.shields.io/badge/version-1.4.0--rc1-blue) ![Android](https://img.shields.io/badge/Android-10%2B-green) ![API](https://img.shields.io/badge/API-29%2B-brightgreen) ![Foldable](https://img.shields.io/badge/foldable-ready-purple)
 
-Browse the [screenshot gallery](docs/index.html) or build the app locally using the instructions below. No hosted demo or APK download is currently available.
+Browse the [screenshot gallery](docs/index.html), or build the app with the instructions below.
 
-This is an unofficial Kismet client. Version **1.4.0-rc1** is a release candidate; debug builds are for evaluation.
+This is an unofficial Kismet client and is under active development.
 
 ---
 
@@ -59,7 +59,7 @@ These captures show an earlier version using synthetic demo data. The [large-scr
 - Three supported types: **Survey** / **Hunt** / **Wardriving**
 - Lifecycle: `DRAFT` → `ACTIVE` → `PAUSED` → `COMPLETE`
 - Hunt campaigns record matching MACs or SSIDs once per device
-- Legacy Alert campaigns remain stored, but rule execution and creation are disabled in this candidate
+- Legacy Alert campaigns remain stored, but rule execution and creation are disabled in this version
 - Auto-collects matching devices while a campaign is active
 
 ### PCAP Capture
@@ -117,9 +117,9 @@ On macOS or Linux:
 ./gradlew :app:assembleDebug :app:testStandardDebugUnitTest :app:testDemoDebugUnitTest :app:lintStandardDebug :app:lintDemoDebug
 ```
 
-The standard APK is `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. The offline demo APK is `app/build/outputs/apk/demo/debug/app-demo-debug.apk` and uses a separate application ID. Both debug APKs use the local Android debug key. Release builds are unsigned until an owner supplies release signing outside the repository.
+The standard APK is `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. The offline demo APK is `app/build/outputs/apk/demo/debug/app-demo-debug.apk` and uses a separate application ID. Both debug APKs use the local Android debug key. Release builds are unsigned; add your own signing configuration to produce a signed release.
 
-To install on a chosen emulator or device, run `adb -s <serial> install -r <apk-path>`. See [testing](docs/TESTING.md) for validation scope and manual checks.
+Install with `adb install -r <apk-path>`. See [testing](docs/TESTING.md) for the test tasks and the offline demo build.
 
 ## Security and limitations
 
@@ -130,7 +130,7 @@ To install on a chosen emulator or device, run `adb -s <serial> install -r <apk-
 - WiGLE CSV preserves observed identifiers, including names beginning with spreadsheet formula characters. If inspecting a file in a spreadsheet, import identifier columns as text and disable formula evaluation; CSV quoting alone does not prevent formula execution.
 - Wardriving uses location supplied by Kismet; this app does not add phone GPS fixes to exports.
 - Local scans depend on Android permissions, enabled radios/location services, and platform scan throttling.
-- JVM tests and lint do not establish live-server compatibility or physical-device acceptance. See [security reporting](SECURITY.md).
+- To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Usage
 

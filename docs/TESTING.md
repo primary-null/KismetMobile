@@ -14,4 +14,4 @@ JUnit XML reports are under `app/build/test-results/`; lint XML/HTML reports are
 
 ## Offline demo
 
-Build `:app:assembleDemoDebug` and install `app/build/outputs/apk/demo/debug/app-demo-debug.apk` on a chosen emulator. The demo starts with synthetic devices, sources, and campaigns and does not need a Kismet server. It uses the separate `com.kismet.mobile.demo` application ID.
+Build `:app:assembleDemoDebug` and install `app/build/outputs/apk/demo/debug/app-demo-debug.apk` on an emulator or device. The demo starts with synthetic devices, sources, and campaigns and does not need a Kismet server. It uses the separate `com.kismet.mobile.demo` application ID.
