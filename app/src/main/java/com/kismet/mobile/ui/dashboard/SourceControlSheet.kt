@@ -34,22 +34,25 @@ class SourceControlSheet : BottomSheetDialogFragment() {
             val isPaused  = src.paused == 1
             val isError   = src.error == 1
 
-            binding.tvSrcName.text = src.name.ifEmpty { src.type }.ifEmpty { src.interfaceName }
+            val srcName = src.name ?: ""
+            val srcType = src.type ?: ""
+            binding.tvSrcName.text = srcName.ifEmpty { srcType }.ifEmpty { src.interfaceName ?: "" }
 
             val (badgeLabel, badgeColor) = when {
-                src.type.contains("ubertooth", true)   -> "UBERTOOTH" to "#00BFA5"
-                src.type.contains("hackrf",    true)   -> "HACKRF"    to "#00BFA5"
-                src.type.contains("rtl",       true)   -> "RTL-SDR"   to "#00BFA5"
-                src.type.contains("wifi",      true)   -> "WIFI"      to "#39FF14"
-                src.type.contains("bluetooth", true)   -> "BT"        to "#29B6F6"
-                else                                   -> src.type.uppercase() to "#546E7A"
+                srcType.contains("ubertooth", true)   -> "UBERTOOTH" to "#00BFA5"
+                srcType.contains("hackrf",    true)   -> "HACKRF"    to "#00BFA5"
+                srcType.contains("rtl",       true)   -> "RTL-SDR"   to "#00BFA5"
+                srcType.contains("wifi",      true)   -> "WIFI"      to "#39FF14"
+                srcType.contains("bluetooth", true)   -> "BT"        to "#29B6F6"
+                else                                  -> srcType.uppercase() to "#546E7A"
             }
             binding.tvSrcTypeBadge.text = badgeLabel
             binding.tvSrcTypeBadge.setTextColor(Color.parseColor(badgeColor))
 
             val ifaceText = buildString {
-                append(src.interfaceName.ifEmpty { "—" })
-                if (src.hardware.isNotEmpty()) append("  ·  ${src.hardware}")
+                append((src.interfaceName ?: "").ifEmpty { "—" })
+                val hw = src.hardware ?: ""
+                if (hw.isNotEmpty()) append("  ·  $hw")
             }
             binding.tvSrcIface.text = ifaceText
 
@@ -72,12 +75,16 @@ class SourceControlSheet : BottomSheetDialogFragment() {
             binding.btnPauseResume.text = if (isRunning) "PAUSE" else "RESUME"
             binding.btnPauseResume.setOnClickListener {
                 if (isRunning) {
-                    viewModel.pauseSource(uuid) { ok, msg ->
-                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    viewModel.pauseSource(uuid) { _, msg ->
+                        val b = _binding ?: return@pauseSource
+                        if (!isAdded) return@pauseSource
+                        Snackbar.make(b.root, msg, Snackbar.LENGTH_SHORT).show()
                     }
                 } else {
-                    viewModel.resumeSource(uuid) { ok, msg ->
-                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    viewModel.resumeSource(uuid) { _, msg ->
+                        val b = _binding ?: return@resumeSource
+                        if (!isAdded) return@resumeSource
+                        Snackbar.make(b.root, msg, Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -94,9 +101,14 @@ class SourceControlSheet : BottomSheetDialogFragment() {
                     putExtra(PcapCaptureService.EXTRA_PASS, state.password)
                 }
             }
-            requireContext().startForegroundService(intent)
-            Snackbar.make(binding.root, "Capture started", Snackbar.LENGTH_SHORT).show()
-            dismiss()
+            try {
+                requireContext().startForegroundService(intent)
+                Snackbar.make(binding.root, "Capture started", Snackbar.LENGTH_SHORT).show()
+                dismiss()
+            } catch (e: Exception) {
+                val b = _binding ?: return@setOnClickListener
+                Snackbar.make(b.root, "Cannot start capture: ${e.message ?: "Failed"}", Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 

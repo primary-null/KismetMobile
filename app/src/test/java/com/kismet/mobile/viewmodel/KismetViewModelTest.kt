@@ -51,4 +51,12 @@ class KismetViewModelTest {
         assertEquals("D1", filtered[0].key)
         assertEquals("D3", filtered[1].key)
     }
+
+    @Test
+    fun `phy classifiers tolerate null names from Gson`() {
+        assertEquals(false, KismetViewModel.isWifi(null))
+        assertEquals(false, KismetViewModel.isBluetooth(null))
+        assertEquals(false, KismetViewModel.isSDR(null))
+        assertEquals(true, KismetViewModel.isWifi("IEEE802.11"))
+    }
 }

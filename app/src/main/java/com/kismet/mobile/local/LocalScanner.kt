@@ -63,10 +63,11 @@ class LocalScanner(private val context: Context) {
 
         try { context.unregisterReceiver(receiver) } catch (_: Exception) {}
 
-        return wm.scanResults.map { sr ->
+        return wm.scanResults.mapNotNull { sr ->
+            val bssid = sr.BSSID ?: return@mapNotNull null
             LocalSighting(
-                mac  = sr.BSSID.uppercase(),
-                name = sr.SSID.ifEmpty { "<hidden>" },
+                mac  = bssid.uppercase(),
+                name = sr.SSID.orEmpty().ifEmpty { "<hidden>" },
                 rssi = sr.level,
                 type = SightingType.WIFI,
             )
@@ -90,7 +91,7 @@ class LocalScanner(private val context: Context) {
             return emptyList()
         }
 
-        val results = mutableListOf<LocalSighting>()
+        val results = java.util.concurrent.CopyOnWriteArrayList<LocalSighting>()
         val done = CompletableDeferred<Unit>()
 
         // BLE scan — LOW_LATENCY for maximum result density during the survey window
@@ -130,7 +131,12 @@ class LocalScanner(private val context: Context) {
             override fun onReceive(ctx: Context, intent: Intent) {
                 when (intent.action) {
                     BluetoothDevice.ACTION_FOUND -> {
-                        val dev = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        val dev = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        }
                         val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE).toInt()
                         if (dev != null && hasConnect) {
                             try {

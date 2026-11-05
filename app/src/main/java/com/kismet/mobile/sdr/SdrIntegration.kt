@@ -55,20 +55,30 @@ object SdrIntegration {
     fun launch(context: Context, app: SdrApp): Boolean {
         val intent = context.packageManager.getLaunchIntentForPackage(app.packageName) ?: return false
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
-        return true
+        return try {
+            context.startActivity(intent)
+            true
+        } catch (_: android.content.ActivityNotFoundException) {
+            false
+        }
     }
 
     fun openPlayStore(context: Context, app: SdrApp) {
         val intent = Intent(Intent.ACTION_VIEW,
             Uri.parse("https://play.google.com/store/apps/details?id=${app.playStoreId}"))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        } catch (_: android.content.ActivityNotFoundException) {
+        }
     }
 
     fun openKismetWebUi(context: Context, host: String, port: Int) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://$host:$port"))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        } catch (_: android.content.ActivityNotFoundException) {
+        }
     }
 }

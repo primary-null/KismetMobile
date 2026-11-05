@@ -1,6 +1,7 @@
 -keepattributes Signature
 -keepattributes *Annotation*
 -keep class com.kismet.mobile.model.** { *; }
+-keep class com.kismet.mobile.api.WigleUploadResult { *; }
 -keep class retrofit2.** { *; }
 -keepclassmembernames interface * {
     @retrofit2.http.* <methods>;

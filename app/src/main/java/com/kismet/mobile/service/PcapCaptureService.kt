@@ -34,6 +34,7 @@ class PcapCaptureService : Service() {
         const val EXTRA_PORT = "port"
         const val EXTRA_USER = "user"
         const val EXTRA_PASS = "pass"
+        const val ACTION_STOP = "STOP"
         private const val NOTIF_ID = 42
     }
 
@@ -45,7 +46,15 @@ class PcapCaptureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == "STOP") {
+        if (intent?.action == ACTION_STOP) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        try {
+            startForeground(NOTIF_ID, buildNotif("Capturing packets…"))
+        } catch (e: Exception) {
+            e.printStackTrace()
             stopSelf()
             return START_NOT_STICKY
         }
@@ -59,8 +68,6 @@ class PcapCaptureService : Service() {
 
         val file = File(cacheDir, "kismet_capture_${System.currentTimeMillis()}.pcapng")
         outputFile = file
-
-        startForeground(NOTIF_ID, buildNotif("Capturing packets…"))
 
         job = scope.launch {
             try {
@@ -81,19 +88,41 @@ class PcapCaptureService : Service() {
 
     override fun onDestroy() {
         job?.cancel()
-        outputFile?.let { f -> if (f.exists() && f.length() > 0) shareCapture(f) }
+        val file = outputFile
+        if (file != null && file.exists() && file.length() > 0) {
+            notifyCaptureReady(file)
+        }
         super.onDestroy()
     }
 
-    private fun shareCapture(file: File) {
-        val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/octet-stream"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+    private fun notifyCaptureReady(file: File) {
+        try {
+            stopForeground(STOP_FOREGROUND_DETACH)
+            val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/octet-stream"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = Intent.createChooser(shareIntent, "Open PCAP in…")
+            val pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                chooser,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val notif = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Capture ready")
+                .setContentText("Tap to view or share ${file.name}")
+                .setSmallIcon(R.drawable.ic_device_generic)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
+            val nm = getSystemService(NotificationManager::class.java)
+            nm.notify(NOTIF_ID, notif)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        startActivity(Intent.createChooser(shareIntent, "Open PCAP in…")
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     private fun createNotifChannel() {
@@ -102,13 +131,13 @@ class PcapCaptureService : Service() {
     }
 
     private fun buildNotif(text: String): Notification {
-        val stopIntent = Intent(this, PcapCaptureService::class.java).apply { action = "STOP" }
+        val stopIntent = Intent(this, PcapCaptureService::class.java).apply { action = ACTION_STOP }
         val stopPi = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Kismet Capture")
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_device_generic)
-            .addAction(0, "STOP", stopPi)
+            .addAction(0, ACTION_STOP, stopPi)
             .build()
     }
 }

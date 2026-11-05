@@ -57,7 +57,7 @@
     <fragment android:id="@+id/deviceDetailFragment"
         android:name="com.kismet.mobile.ui.detail.DeviceDetailFragment"
         android:label="Device Detail">
-        <argument android:name="device" app:argType="com.kismet.mobile.model.Device" />
+        <argument android:name="deviceKey" app:argType="string" />
         <action android:id="@+id/action_detail_to_clients"
             app:destination="@id/clientsFragment"
             app:enterAnim="@anim/slide_in_right"
@@ -81,6 +81,12 @@
         android:label="Campaign Detail">
         <argument android:name="campaignId" app:argType="string" />
         <argument android:name="campaignName" app:argType="string" android:defaultValue="" />
+        <action android:id="@+id/action_campaign_detail_to_settings"
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment android:id="@+id/settingsFragment"

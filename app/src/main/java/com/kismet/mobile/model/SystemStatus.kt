@@ -57,7 +57,7 @@ data class Channel(
 ) {
     val signal: Int get() = signalData?.lastSignal ?: 0
     val packets: Long get() = packetsRrd?.lastValue ?: 0L
-    val channelLabel: String get() = channel.ifEmpty { "${frequencyKhz / 1000} MHz" }
+    val channelLabel: String get() = (channel ?: "").ifEmpty { "${frequencyKhz / 1000} MHz" }
 }
 
 data class PhyList(

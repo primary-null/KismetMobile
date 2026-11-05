@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.kismet.mobile.ui.navigateIfPresent
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.window.layout.FoldingFeature
 import kotlinx.coroutines.launch
@@ -50,9 +51,9 @@ class DevicesFragment : Fragment() {
         }
 
         adapter = DeviceAdapter { device ->
-            findNavController().navigate(
+            findNavController().navigateIfPresent(
                 R.id.action_devices_to_detail,
-                bundleOf("device" to device)
+                bundleOf("deviceKey" to device.key)
             )
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.window.layout.FoldingFeature
 import androidx.navigation.fragment.findNavController
+import com.kismet.mobile.ui.navigateIfPresent
 import com.kismet.mobile.R
 import com.kismet.mobile.databinding.FragmentDeviceDetailBinding
 import com.kismet.mobile.viewmodel.WindowLayoutViewModel
@@ -46,7 +47,15 @@ class DeviceDetailFragment : Fragment() {
             applyFoldPadding(fold)
         }
 
-        val device = arguments?.getParcelable<Device>("device") ?: return
+        val deviceKey = arguments?.getString("deviceKey")
+        val device = if (!deviceKey.isNullOrEmpty()) {
+            viewModel.devices.value?.firstOrNull { it.key == deviceKey }
+        } else null
+
+        if (device == null) {
+            findNavController().popBackStack()
+            return
+        }
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
@@ -59,7 +68,7 @@ class DeviceDetailFragment : Fragment() {
             binding.btnViewClients.text = "VIEW ${device.dot11?.numClients} CLIENTS"
             binding.btnViewClients.setOnClickListener {
                 viewModel.fetchClientsOf(device.key)
-                findNavController().navigate(
+                findNavController().navigateIfPresent(
                     R.id.action_detail_to_clients,
                     bundleOf("apName" to device.displayName)
                 )
@@ -158,8 +167,12 @@ class DeviceDetailFragment : Fragment() {
                 putExtra(com.kismet.mobile.service.PcapCaptureService.EXTRA_PASS, state.password)
             }
         }
-        requireContext().startForegroundService(intent)
-        com.google.android.material.snackbar.Snackbar.make(binding.root, "Capture started...", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+        try {
+            requireContext().startForegroundService(intent)
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Capture started...", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Cannot start capture: ${e.message ?: "Failed"}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private fun applyFoldPadding(fold: FoldingFeature?) {

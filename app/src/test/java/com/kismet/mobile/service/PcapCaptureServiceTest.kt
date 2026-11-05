@@ -12,5 +12,8 @@ class PcapCaptureServiceTest {
         assertEquals("device_key", PcapCaptureService.EXTRA_DEVICE_KEY)
         assertEquals("host", PcapCaptureService.EXTRA_HOST)
         assertEquals("port", PcapCaptureService.EXTRA_PORT)
+        assertEquals("user", PcapCaptureService.EXTRA_USER)
+        assertEquals("pass", PcapCaptureService.EXTRA_PASS)
+        assertEquals("STOP", PcapCaptureService.ACTION_STOP)
     }
 }

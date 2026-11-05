@@ -19,7 +19,7 @@ object InterfaceGuard {
         val props = cm.getLinkProperties(activeNet) ?: return GuardResult.Safe
         val localIface = props.interfaceName ?: return GuardResult.Safe
 
-        val srcIface = source.interfaceName.ifEmpty { source.name }
+        val srcIface = (source.interfaceName ?: "").ifEmpty { source.name ?: "" }
 
         if (srcIface.isNotEmpty() && localIface.isNotEmpty() &&
             (srcIface == localIface ||

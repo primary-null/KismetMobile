@@ -10,8 +10,6 @@ import com.kismet.mobile.demo.DemoData
 import com.kismet.mobile.local.LocalScanner
 import com.kismet.mobile.local.LocalSighting
 import com.kismet.mobile.local.SecondLatchMatcher
-import com.kismet.mobile.model.AlertAction
-import com.kismet.mobile.model.AlertTrigger
 import com.kismet.mobile.model.Campaign
 import com.kismet.mobile.model.CampaignStatus
 import com.kismet.mobile.model.CampaignType
@@ -244,75 +242,58 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
     // --- Campaign Alert Engine ---
 
     private fun runCampaignAlerts(newDevices: List<Device>) {
-        val active = _campaigns.value?.filter { it.status == CampaignStatus.ACTIVE } ?: return
+        val campaigns = _campaigns.value ?: return
+        val active = campaigns.filter {
+            it.status == CampaignStatus.ACTIVE && it.type != CampaignType.ALERT
+        }
         if (active.isEmpty()) return
         var anyChanged = false
-        active.forEach { campaign ->
-            // Survey/Wardriving: auto-add devices, respecting surveyScope
-            if (campaign.type == CampaignType.SURVEY || campaign.type == CampaignType.WARDRIVING) {
-                val existing = campaign.deviceKeys.toHashSet()
+        val updated = campaigns.map { original ->
+            if (original.status != CampaignStatus.ACTIVE || original.type == CampaignType.ALERT) {
+                return@map original
+            }
+            val keys = original.deviceKeys.toMutableList()
+            val alerts = original.firedAlerts.toMutableList()
+            var changed = false
+            if (original.type == CampaignType.SURVEY || original.type == CampaignType.WARDRIVING) {
+                val existing = keys.toHashSet()
                 val toAdd = newDevices.filter { d ->
-                    d.key !in existing && when (campaign.surveyScope) {
-                        "WIFI" -> isWifi(d.phyName ?: "")
-                        "BT"   -> isBluetooth(d.phyName ?: "")
+                    d.key !in existing && when (original.surveyScope) {
+                        "WIFI" -> isWifi(d.phyName)
+                        "BT"   -> isBluetooth(d.phyName)
                         else   -> true
                     }
                 }
                 if (toAdd.isNotEmpty()) {
-                    toAdd.forEach { campaign.deviceKeys.add(it.key) }
-                    prefs.updateCampaign(campaign)
-                    anyChanged = true
+                    keys.addAll(toAdd.map { it.key })
+                    changed = true
                 }
             }
-            // Hunt: match targetMacs / targetSsids directly
-            if (campaign.type == CampaignType.HUNT) {
-                val existing = campaign.deviceKeys.toHashSet()
+            if (original.type == CampaignType.HUNT) {
+                val existing = keys.toHashSet()
                 newDevices.forEach { device ->
                     if (device.key in existing) return@forEach
-                    val macMatch  = campaign.targetMacs.any  { (device.mac ?: "").equals(it.trim(), ignoreCase = true) }
-                    val ssidMatch = campaign.targetSsids.any { (device.displayName ?: "").contains(it.trim(), ignoreCase = true) }
+                    val macMatch  = original.targetMacs.any  { (device.mac ?: "").equals(it.trim(), ignoreCase = true) }
+                    val ssidMatch = original.targetSsids.any { device.displayName.contains(it.trim(), ignoreCase = true) }
                     if (macMatch || ssidMatch) {
-                        campaign.deviceKeys.add(device.key)
-                        campaign.firedAlerts.add(
-                            FiredAlert(0, device.key, "HUNT: ${device.displayName ?: "Unknown"} (${device.mac ?: "No MAC"})")
+                        keys.add(device.key)
+                        alerts.add(
+                            FiredAlert(0, device.key, "HUNT: ${device.displayName} (${device.mac ?: "No MAC"})")
                         )
-                        prefs.updateCampaign(campaign)
-                        anyChanged = true
+                        changed = true
                     }
                 }
             }
-            // Alert: evaluate rules
-            campaign.alertRules.forEachIndexed { ruleIdx, rule ->
-                newDevices.forEach { device ->
-                    val fired = when (rule.trigger) {
-                        AlertTrigger.NEW_DEVICE -> true
-                        AlertTrigger.MAC_SEEN -> device.mac.equals(rule.value, ignoreCase = true)
-                        AlertTrigger.SSID_SEEN -> device.displayName.contains(rule.value, ignoreCase = true)
-                        AlertTrigger.SIGNAL_THRESHOLD -> {
-                            val sig = device.signal?.lastSignal ?: 0
-                            sig != 0 && sig >= (rule.value.toIntOrNull() ?: 0)
-                        }
-                        AlertTrigger.CLIENT_COUNT -> {
-                            val count = device.dot11?.numClients ?: 0
-                            count >= (rule.value.toIntOrNull() ?: 0)
-                        }
-                    }
-                    if (fired && rule.action == AlertAction.NOTIFY) {
-                        val already = campaign.firedAlerts.any {
-                            it.deviceKey == device.key && it.ruleIndex == ruleIdx
-                        }
-                        if (!already) {
-                            campaign.firedAlerts.add(
-                                FiredAlert(ruleIdx, device.key, "${rule.trigger.name}: ${device.displayName}")
-                            )
-                            prefs.updateCampaign(campaign)
-                            anyChanged = true
-                        }
-                    }
-                }
-            }
+            if (changed) {
+                anyChanged = true
+                val next = original.copy(deviceKeys = keys, firedAlerts = alerts)
+                prefs.updateCampaign(next)
+                next
+            } else original
         }
-        if (anyChanged) refreshCampaigns()
+        if (anyChanged) {
+            _campaigns.postValue(updated)
+        }
     }
 
     // --- Filters ---
@@ -506,20 +487,20 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
     fun clearError() { _error.value = null }
 
     companion object {
-        fun isWifi(phy: String) = phy.contains("802.11", ignoreCase = true)
-        fun isBluetooth(phy: String) =
-            phy.contains("Bluetooth", ignoreCase = true) ||
-            phy.contains("BTLE", ignoreCase = true) ||
-            phy.contains("BT", ignoreCase = true) ||
-            phy.contains("bt_", ignoreCase = true)
-        fun isSDR(phy: String) =
-            phy.contains("ADSB", ignoreCase = true) ||
-            phy.contains("ADS-B", ignoreCase = true) ||
-            phy.contains("UAV", ignoreCase = true) ||
-            phy.contains("RTL", ignoreCase = true) ||
-            phy.contains("SDR", ignoreCase = true) ||
-            phy.contains("Spectrum", ignoreCase = true) ||
-            phy.contains("hackrf", ignoreCase = true)
+        fun isWifi(phy: String?) = (phy ?: "").contains("802.11", ignoreCase = true)
+        fun isBluetooth(phy: String?) =
+            (phy ?: "").contains("Bluetooth", ignoreCase = true) ||
+            (phy ?: "").contains("BTLE", ignoreCase = true) ||
+            (phy ?: "").contains("BT", ignoreCase = true) ||
+            (phy ?: "").contains("bt_", ignoreCase = true)
+        fun isSDR(phy: String?) =
+            (phy ?: "").contains("ADSB", ignoreCase = true) ||
+            (phy ?: "").contains("ADS-B", ignoreCase = true) ||
+            (phy ?: "").contains("UAV", ignoreCase = true) ||
+            (phy ?: "").contains("RTL", ignoreCase = true) ||
+            (phy ?: "").contains("SDR", ignoreCase = true) ||
+            (phy ?: "").contains("Spectrum", ignoreCase = true) ||
+            (phy ?: "").contains("hackrf", ignoreCase = true)
     }
 }
 

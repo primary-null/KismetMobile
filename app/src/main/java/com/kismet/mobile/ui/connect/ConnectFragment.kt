@@ -131,7 +131,9 @@ class ConnectFragment : Fragment() {
         }
 
         if (BuildConfig.IS_DEMO) {
-            viewModel.enterDemoMode()
+            view.post {
+                if (isAdded) viewModel.enterDemoMode()
+            }
         }
     }
 

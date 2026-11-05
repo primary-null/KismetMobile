@@ -32,10 +32,14 @@ class DeviceAdapter(private val onClick: (Device) -> Unit = {}) : ListAdapter<De
         fun bind(device: Device) {
             binding.root.setOnClickListener { onClick(device) }
 
-            val resolvedManuf = if (device.manufacturer.isBlank()) {
-                OuiLookupManager.resolveMac(device.mac) ?: ""
+            val manufacturer = device.manufacturer ?: ""
+            val phyName = device.phyName ?: ""
+            val channel = device.channel ?: ""
+            val seenBy = device.seenBy ?: emptyList()
+            val resolvedManuf = if (manufacturer.isBlank()) {
+                OuiLookupManager.resolveMac(device.mac ?: "") ?: ""
             } else {
-                device.manufacturer
+                manufacturer
             }
             val iconRes = DeviceIconHelper.getIconForManufacturer(resolvedManuf)
             try {
@@ -45,21 +49,24 @@ class DeviceAdapter(private val onClick: (Device) -> Unit = {}) : ListAdapter<De
             }
             
             binding.tvName.text = device.displayName
-            binding.tvMac.text = device.mac
-            binding.tvPhy.text = device.phyName.ifEmpty { "Unknown" }
+            binding.tvMac.text = device.mac ?: ""
+            binding.tvPhy.text = phyName.ifEmpty { "Unknown" }
             binding.tvManuf.text = resolvedManuf.ifEmpty { "—" }
             val signal = device.signal?.lastSignal
             binding.tvSignal.text = if (signal != null && signal != 0) "${signal} dBm" else "—"
-            val lastSeen = Date(device.lastTime * 1000)
-            binding.tvLastSeen.text = SimpleDateFormat("HH:mm:ss", Locale.US).format(lastSeen)
-            binding.tvChannel.text = device.channel.ifEmpty { "—" }
+            binding.tvLastSeen.text = if (device.lastTime <= 0) {
+                "—"
+            } else {
+                SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(device.lastTime * 1000))
+            }
+            binding.tvChannel.text = channel.ifEmpty { "—" }
 
-            binding.tvPhy.setTextColor(phyColor(device.phyName))
+            binding.tvPhy.setTextColor(phyColor(phyName))
 
             val isProximal = localSightings.containsKey(device.key)
             binding.tvProximalBadge.visibility = if (isProximal) android.view.View.VISIBLE else android.view.View.GONE
 
-            val captureTag = device.seenBy.mapNotNull { sourcesMap[it.uuid] }
+            val captureTag = seenBy.mapNotNull { sourcesMap[it.uuid] }
                 .firstOrNull { src ->
                     src.type.contains("ubertooth", true) ||
                     src.type.contains("hackrf",    true) ||

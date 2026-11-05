@@ -15,7 +15,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.kismet.mobile.ui.navigateIfPresent
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.window.layout.FoldingFeature
 import com.kismet.mobile.R
@@ -32,7 +34,9 @@ import com.kismet.mobile.viewmodel.WindowLayoutViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 
@@ -286,7 +290,12 @@ class CampaignDetailFragment : Fragment() {
         val prefs = com.kismet.mobile.storage.AppPrefs(requireContext())
         val profile = prefs.getWigleProfile()
         if (profile.apiName.isBlank() || profile.apiToken.isBlank()) {
-            com.google.android.material.snackbar.Snackbar.make(binding.root, "Configure WiGLE in Settings first", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Configure WiGLE in Settings first", com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                .setAction("SETTINGS") {
+                    if (!isAdded) return@setAction
+                    findNavController().navigateIfPresent(R.id.action_campaign_detail_to_settings)
+                }
+                .show()
             return
         }
         val devices = viewModel.campaignDevices(campaignId)
@@ -295,26 +304,29 @@ class CampaignDetailFragment : Fragment() {
             return
         }
         com.google.android.material.snackbar.Snackbar.make(binding.root, "Uploading to WiGLE...", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        val appContext = requireContext().applicationContext
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val csv = com.kismet.mobile.export.WigleExporter.toCsv(devices)
-                val tempFile = java.io.File(requireContext().cacheDir, "wigle_export.csv")
-                tempFile.writeText(csv)
-                val mediaType = "text/csv".toMediaTypeOrNull()
-                val reqFile = tempFile.asRequestBody(mediaType)
-                val body = okhttp3.MultipartBody.Part.createFormData("file", tempFile.name, reqFile)
-                val api = com.kismet.mobile.api.WigleClient.build(profile.apiName, profile.apiToken)
-                val response = api.upload(body)
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    if (response.isSuccessful && response.body()?.success == true)
-                        com.google.android.material.snackbar.Snackbar.make(binding.root, "WiGLE Upload Successful", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
-                    else
-                        com.google.android.material.snackbar.Snackbar.make(binding.root, "WiGLE Upload Failed: ${response.body()?.message ?: response.code()}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+                val csv = withContext(Dispatchers.IO) {
+                    val text = com.kismet.mobile.export.WigleExporter.toCsv(devices)
+                    val tempFile = java.io.File(appContext.cacheDir, "wigle_export.csv")
+                    tempFile.writeText(text)
+                    val mediaType = "text/csv".toMediaTypeOrNull()
+                    val reqFile = tempFile.asRequestBody(mediaType)
+                    val body = okhttp3.MultipartBody.Part.createFormData("file", tempFile.name, reqFile)
+                    val api = com.kismet.mobile.api.WigleClient.build(profile.apiName, profile.apiToken)
+                    api.upload(body)
                 }
+                val b = _binding ?: return@launch
+                if (!isAdded) return@launch
+                if (csv.isSuccessful && csv.body()?.success == true)
+                    com.google.android.material.snackbar.Snackbar.make(b.root, "WiGLE Upload Successful", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                else
+                    com.google.android.material.snackbar.Snackbar.make(b.root, "WiGLE Upload Failed: ${csv.body()?.message ?: csv.code()}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
             } catch (e: Exception) {
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    com.google.android.material.snackbar.Snackbar.make(binding.root, "Error: ${e.message}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
-                }
+                val b = _binding ?: return@launch
+                if (!isAdded) return@launch
+                com.google.android.material.snackbar.Snackbar.make(b.root, "Error: ${e.message}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
             }
         }
     }

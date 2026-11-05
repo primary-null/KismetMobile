@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.window.layout.FoldingFeature
 import androidx.navigation.fragment.findNavController
+import com.kismet.mobile.ui.navigateIfPresent
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.kismet.mobile.R
@@ -48,7 +49,7 @@ class CampaignsFragment : Fragment() {
 
         adapter = CampaignAdapter(
             onOpen = { campaign ->
-                findNavController().navigate(
+                findNavController().navigateIfPresent(
                     R.id.action_campaigns_to_campaign_detail,
                     Bundle().apply {
                         putString("campaignId", campaign.id)
@@ -98,7 +99,6 @@ class CampaignsFragment : Fragment() {
         val types = listOf(
             Triple(CampaignType.SURVEY,     "Survey",     "Passively collect all devices seen while active"),
             Triple(CampaignType.HUNT,       "Hunt",       "Alert when a specific MAC or SSID appears"),
-            Triple(CampaignType.ALERT,      "Alert",      "Fire notifications based on custom trigger rules"),
             Triple(CampaignType.WARDRIVING, "Wardriving", "Survey + GPS location tagging + WiGLE export"),
         )
         val labels = types.map { "${it.second} — ${it.third}" }.toTypedArray()

@@ -7,14 +7,19 @@ plugins {
 android {
     namespace = "com.kismet.mobile"
     compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.kismet.mobile"
         minSdk = 29
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.3.1"
+        versionCode = 9
+        versionName = "1.4.0-rc1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
     }
 
     buildTypes {

@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import com.google.gson.annotations.SerializedName
 
 interface WigleApi {
     @Multipart
@@ -16,8 +17,8 @@ interface WigleApi {
 }
 
 data class WigleUploadResult(
-    val success: Boolean = false,
-    val message: String = "",
+    @SerializedName("success") val success: Boolean = false,
+    @SerializedName("message") val message: String = "",
 )
 
 object WigleClient {

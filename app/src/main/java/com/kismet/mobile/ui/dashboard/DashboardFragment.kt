@@ -19,6 +19,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.window.layout.FoldingFeature
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.kismet.mobile.ui.navigateIfPresent
 import com.google.android.material.snackbar.Snackbar
 import com.kismet.mobile.R
 import com.kismet.mobile.databinding.FragmentDashboardBinding
@@ -80,7 +81,7 @@ class DashboardFragment : Fragment() {
         binding.cellTotalDevices.setOnClickListener { goToDevices(PhyFilter.ALL) }
         binding.cardSdr.setOnClickListener { openSdrSheet() }
         binding.cardSdr.setOnLongClickListener {
-            findNavController().navigate(R.id.action_dashboard_to_spectrum)
+            findNavController().navigateIfPresent(R.id.action_dashboard_to_spectrum)
             true
         }
 
@@ -170,12 +171,14 @@ class DashboardFragment : Fragment() {
         val port = if (connState is ConnectionState.Connected) connState.port else 2501
 
         sources.forEach { src ->
-            val isUbertooth = src.type.contains("ubertooth", ignoreCase = true)
-            val isHackRF    = src.type.contains("hackrf",    ignoreCase = true) ||
-                              src.name.contains("hackrf",    ignoreCase = true)
-            val isRtl       = src.type.contains("rtl",       ignoreCase = true)
+            val srcName = src.name ?: ""
+            val srcType = src.type ?: ""
+            val isUbertooth = srcType.contains("ubertooth", ignoreCase = true)
+            val isHackRF    = srcType.contains("hackrf",    ignoreCase = true) ||
+                              srcName.contains("hackrf",    ignoreCase = true)
+            val isRtl       = srcType.contains("rtl",       ignoreCase = true)
             val isSdr       = isUbertooth || isHackRF || isRtl ||
-                              src.type.contains("sdr",       ignoreCase = true)
+                              srcType.contains("sdr",       ignoreCase = true)
             val isRunning   = src.running == 1 && src.paused == 0 && src.error == 0
             val isPaused    = src.paused == 1
             val isError     = src.error == 1
@@ -183,7 +186,7 @@ class DashboardFragment : Fragment() {
 
             val accentColor = when {
                 isSdr  -> "#00BFA5"
-                src.type.contains("bluetooth", ignoreCase = true) -> "#29B6F6"
+                srcType.contains("bluetooth", ignoreCase = true) -> "#29B6F6"
                 else   -> "#CFD8DC"
             }
 
@@ -203,7 +206,7 @@ class DashboardFragment : Fragment() {
                         SourceControlSheet.newInstance(src.uuid)
                             .show(parentFragmentManager, "src_ctrl")
                     else
-                        SdrLaunchSheet.newInstance(host, port, src.name.ifEmpty { src.type })
+                        SdrLaunchSheet.newInstance(host, port, srcName.ifEmpty { srcType })
                             .show(parentFragmentManager, "sdr_launch")
                 }
                 setOnLongClickListener {
@@ -225,7 +228,7 @@ class DashboardFragment : Fragment() {
             }
 
             val label = TextView(requireContext()).apply {
-                val displayName = src.name.ifEmpty { src.type }
+                val displayName = srcName.ifEmpty { srcType }
                 text = when {
                     isActiveIface -> "$displayName 🔗"
                     isUbertooth   -> "$displayName  ▶ UBERTOOTH"
@@ -280,9 +283,7 @@ class DashboardFragment : Fragment() {
             .setPositiveButton("ADD") { _, _ ->
                 val def = input.text.toString().trim()
                 if (def.isNotEmpty()) {
-                    viewModel.addSource(def) { ok, msg ->
-                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
-                    }
+                    viewModel.addSource(def) { _, msg -> snack(msg) }
                 }
             }
             .setNegativeButton("CANCEL", null)
@@ -292,7 +293,7 @@ class DashboardFragment : Fragment() {
     private fun showSourceActions(src: DataSource, host: String, port: Int) {
         val guard = InterfaceGuard.check(requireContext(), src, host)
         AlertDialog.Builder(requireContext())
-            .setTitle(src.name.ifEmpty { src.type }.ifEmpty { "Source" })
+            .setTitle((src.name ?: "").ifEmpty { src.type ?: "" }.ifEmpty { "Source" })
             .setItems(arrayOf("Set Hopping", "Open SDR Sheet", "Export PCAP")) { _, which ->
                 when (which) {
                     0 -> if (guard is GuardResult.Warning) {
@@ -305,7 +306,7 @@ class DashboardFragment : Fragment() {
                         } else {
                             doSetHop(src)
                         }
-                    1 -> SdrLaunchSheet.newInstance(host, port, src.name.ifEmpty { src.type })
+                    1 -> SdrLaunchSheet.newInstance(host, port, (src.name ?: "").ifEmpty { src.type ?: "" })
                             .show(parentFragmentManager, "sdr_launch")
                     2 -> startPcapCapture(uuid = src.uuid.ifEmpty { null })
                 }
@@ -316,12 +317,10 @@ class DashboardFragment : Fragment() {
 
     private fun doSetHop(src: DataSource) {
         if (src.uuid.isEmpty()) {
-            Snackbar.make(binding.root, "Source has no UUID", Snackbar.LENGTH_SHORT).show()
+            snack("Source has no UUID")
             return
         }
-        viewModel.setSourceHop(src.uuid) { _, msg ->
-            Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
-        }
+        viewModel.setSourceHop(src.uuid) { _, msg -> snack(msg) }
     }
 
     private fun startPcapCapture(uuid: String? = null, deviceKey: String? = null) {
@@ -336,8 +335,18 @@ class DashboardFragment : Fragment() {
                 putExtra(PcapCaptureService.EXTRA_PASS, state.password)
             }
         }
-        requireContext().startForegroundService(intent)
-        Snackbar.make(binding.root, "Capture started — check notification to stop", Snackbar.LENGTH_LONG).show()
+        try {
+            requireContext().startForegroundService(intent)
+            snack("Capture started — check notification to stop", Snackbar.LENGTH_LONG)
+        } catch (e: Exception) {
+            snack("Cannot start capture: ${e.message ?: "Failed"}", Snackbar.LENGTH_LONG)
+        }
+    }
+
+    private fun snack(msg: String, duration: Int = Snackbar.LENGTH_SHORT) {
+        val b = _binding ?: return
+        if (!isAdded) return
+        Snackbar.make(b.root, msg, duration).show()
     }
 
     private fun formatLong(value: Long): String = when {
