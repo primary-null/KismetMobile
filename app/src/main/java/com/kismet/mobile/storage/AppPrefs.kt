@@ -18,7 +18,7 @@ class AppPrefs(context: Context) {
 
     fun getProfiles(): List<ConnectionProfile> {
         val json = prefs.getString(KEY_PROFILES, null) ?: return emptyList()
-        return try { gson.fromJson(json, object : TypeToken<List<ConnectionProfile>>() {}.type) }
+        return try { gson.fromJson<List<ConnectionProfile>>(json, object : TypeToken<List<ConnectionProfile>>() {}.type) ?: emptyList() }
         catch (_: Exception) { emptyList() }
     }
 
@@ -38,7 +38,7 @@ class AppPrefs(context: Context) {
 
     fun getCampaigns(): List<Campaign> {
         val json = prefs.getString(KEY_CAMPAIGNS, null) ?: return emptyList()
-        return try { gson.fromJson(json, object : TypeToken<List<Campaign>>() {}.type) }
+        return try { gson.fromJson<List<Campaign>>(json, object : TypeToken<List<Campaign>>() {}.type) ?: emptyList() }
         catch (_: Exception) { emptyList() }
     }
 
@@ -82,7 +82,7 @@ class AppPrefs(context: Context) {
 
     fun getWigleProfile(): WigleProfile {
         val json = prefs.getString(KEY_WIGLE, null) ?: return WigleProfile()
-        return try { gson.fromJson(json, WigleProfile::class.java) }
+        return try { gson.fromJson(json, WigleProfile::class.java) ?: WigleProfile() }
         catch (_: Exception) { WigleProfile() }
     }
 

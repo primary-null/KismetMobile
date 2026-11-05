@@ -56,12 +56,13 @@ class LocalScanner(private val context: Context) {
             context.registerReceiver(receiver, filter)
         }
 
-        val success = wm.startScan()
-        if (success) {
-            withTimeoutOrNull(8000) { done.await() }
+        try {
+            if (wm.startScan()) {
+                withTimeoutOrNull(8000) { done.await() }
+            }
+        } finally {
+            context.unregisterReceiver(receiver)
         }
-
-        try { context.unregisterReceiver(receiver) } catch (_: Exception) {}
 
         return wm.scanResults.mapNotNull { sr ->
             val bssid = sr.BSSID ?: return@mapNotNull null
@@ -81,10 +82,10 @@ class LocalScanner(private val context: Context) {
         val adapter = bm.adapter ?: return emptyList()
         if (!adapter.isEnabled) return emptyList()
 
-        val hasBleScan = ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-        val hasConnect = ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        val hasBleScan = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+        val hasConnect = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
 
         if (!hasBleScan) {
             Log.w("LocalScanner", "BLUETOOTH_SCAN not granted — skipping BT scan")
@@ -124,7 +125,7 @@ class LocalScanner(private val context: Context) {
         val scanSettings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
-        adapter.bluetoothLeScanner?.startScan(null, scanSettings, leCallback)
+        val leScanner = adapter.bluetoothLeScanner
 
         // Classic BT discovery — requires RECEIVER_EXPORTED for system broadcasts on API 33+
         val receiver = object : BroadcastReceiver() {
@@ -166,15 +167,15 @@ class LocalScanner(private val context: Context) {
             context.registerReceiver(receiver, filter)
         }
 
-        val started = adapter.startDiscovery()
-        Log.d("LocalScanner", "startDiscovery() = $started")
-
-        withTimeoutOrNull(12_000) { done.await() }
-        Log.d("LocalScanner", "scan complete — ${results.size} sightings")
-
-        try { context.unregisterReceiver(receiver) } catch (_: Exception) {}
-        adapter.bluetoothLeScanner?.stopScan(leCallback)
-        adapter.cancelDiscovery()
+        try {
+            leScanner?.startScan(null, scanSettings, leCallback)
+            adapter.startDiscovery()
+            withTimeoutOrNull(12_000) { done.await() }
+        } finally {
+            context.unregisterReceiver(receiver)
+            try { leScanner?.stopScan(leCallback) } catch (_: SecurityException) { }
+            try { adapter.cancelDiscovery() } catch (_: SecurityException) { }
+        }
 
         return results.distinctBy { it.mac }
     }

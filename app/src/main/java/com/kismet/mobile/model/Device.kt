@@ -57,8 +57,8 @@ data class LocationRecord(
 data class GeoPoint(
     @SerializedName("kismet.common.location.geopoint") val geopoint: List<Double> = emptyList()
 ) : Parcelable {
-    val lon: Double get() = geopoint.getOrElse(0) { 0.0 }
-    val lat: Double get() = geopoint.getOrElse(1) { 0.0 }
+    val lon: Double get() = geopoint.orEmpty().getOrNull(0) ?: 0.0
+    val lat: Double get() = geopoint.orEmpty().getOrNull(1) ?: 0.0
 }
 
 @Parcelize

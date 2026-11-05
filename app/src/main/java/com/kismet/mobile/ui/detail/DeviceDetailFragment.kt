@@ -168,7 +168,7 @@ class DeviceDetailFragment : Fragment() {
             }
         }
         try {
-            requireContext().startForegroundService(intent)
+            com.kismet.mobile.service.PcapCaptureService.start(requireContext(), intent)
             com.google.android.material.snackbar.Snackbar.make(binding.root, "Capture started...", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
         } catch (e: Exception) {
             com.google.android.material.snackbar.Snackbar.make(binding.root, "Cannot start capture: ${e.message ?: "Failed"}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()

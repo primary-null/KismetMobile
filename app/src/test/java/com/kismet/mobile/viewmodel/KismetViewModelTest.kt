@@ -3,6 +3,7 @@ package com.kismet.mobile.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.kismet.mobile.model.Campaign
 import com.kismet.mobile.model.CampaignStatus
+import com.kismet.mobile.model.CampaignType
 import com.kismet.mobile.model.Device
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -58,5 +59,38 @@ class KismetViewModelTest {
         assertEquals(false, KismetViewModel.isBluetooth(null))
         assertEquals(false, KismetViewModel.isSDR(null))
         assertEquals(true, KismetViewModel.isWifi("IEEE802.11"))
+    }
+
+    @Test
+    fun `hunt ignores empty targets and records duplicate sightings only once`() {
+        val viewModel = KismetViewModel(mockk<android.app.Application>(relaxed = true))
+        val campaign = Campaign(type = CampaignType.HUNT, status = CampaignStatus.ACTIVE,
+            targetSsids = listOf(" ", "Cafe"), targetMacs = listOf(""))
+        val field = KismetViewModel::class.java.getDeclaredField("_campaigns").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val campaigns = field.get(viewModel) as androidx.lifecycle.MutableLiveData<List<Campaign>>
+        campaigns.value = listOf(campaign)
+        val update = KismetViewModel::class.java.getDeclaredMethod("runCampaignAlerts", List::class.java).apply { isAccessible = true }
+        val matching = Device(key = "match", name = "Cafe Guest")
+        update.invoke(viewModel, listOf(matching, matching, Device(key = "other", name = "Other")))
+        update.invoke(viewModel, listOf(matching))
+        val result = campaigns.value!!.single()
+        assertEquals(listOf("match"), result.deviceKeys)
+        assertEquals(1, result.firedAlerts.size)
+        assertEquals(emptyList<String>(), campaign.deviceKeys)
+    }
+
+    @Test
+    fun `legacy Alert campaigns and paused surveys are preserved without evaluation`() {
+        val viewModel = KismetViewModel(mockk<android.app.Application>(relaxed = true))
+        val legacy = Campaign(type = CampaignType.ALERT, status = CampaignStatus.ACTIVE)
+        val paused = Campaign(type = CampaignType.SURVEY, status = CampaignStatus.PAUSED)
+        val field = KismetViewModel::class.java.getDeclaredField("_campaigns").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val campaigns = field.get(viewModel) as androidx.lifecycle.MutableLiveData<List<Campaign>>
+        campaigns.value = listOf(legacy, paused)
+        val update = KismetViewModel::class.java.getDeclaredMethod("runCampaignAlerts", List::class.java).apply { isAccessible = true }
+        update.invoke(viewModel, listOf(Device(key = "new")))
+        assertEquals(listOf(legacy, paused), campaigns.value)
     }
 }

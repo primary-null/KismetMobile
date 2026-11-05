@@ -102,7 +102,7 @@ class SourceControlSheet : BottomSheetDialogFragment() {
                 }
             }
             try {
-                requireContext().startForegroundService(intent)
+                com.kismet.mobile.service.PcapCaptureService.start(requireContext(), intent)
                 Snackbar.make(binding.root, "Capture started", Snackbar.LENGTH_SHORT).show()
                 dismiss()
             } catch (e: Exception) {

@@ -336,7 +336,7 @@ class DashboardFragment : Fragment() {
             }
         }
         try {
-            requireContext().startForegroundService(intent)
+            com.kismet.mobile.service.PcapCaptureService.start(requireContext(), intent)
             snack("Capture started — check notification to stop", Snackbar.LENGTH_LONG)
         } catch (e: Exception) {
             snack("Cannot start capture: ${e.message ?: "Failed"}", Snackbar.LENGTH_LONG)

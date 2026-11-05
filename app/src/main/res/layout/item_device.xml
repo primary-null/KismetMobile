@@ -25,6 +25,8 @@
 
             <ImageView
                 android:id="@+id/iv_icon"
+                android:importantForAccessibility="no"
+                android:contentDescription="@null"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"

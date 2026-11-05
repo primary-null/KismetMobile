@@ -5,13 +5,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.connection.channel.direct.Parameters
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import java.io.File
+import java.net.InetAddress
 import java.net.ServerSocket
 
 object SshTunnel {
     private const val TAG = "SshTunnel"
     private var sshClient: SSHClient? = null
     private var localPort: Int = -1
+    private var serverSocket: ServerSocket? = null
+    private var target: List<String>? = null
 
     suspend fun connect(
         host: String,
@@ -19,19 +22,22 @@ object SshTunnel {
         username: String,
         password: String?,
         privateKey: String? = null,
-        remoteApiPort: Int = 2501
+        remoteApiPort: Int = 2501,
+        trustDirectory: File,
     ): Int = withContext(Dispatchers.IO) {
-        if (sshClient != null && sshClient?.isConnected == true) {
+        val requestedTarget = listOf(host, sshPort.toString(), username, remoteApiPort.toString())
+        if (sshClient?.isConnected == true && target == requestedTarget) {
             return@withContext localPort
         }
+        disconnect()
 
-        Log.d(TAG, "Connecting SSH to $host:$sshPort as $username")
         val ssh = SSHClient()
-        ssh.addHostKeyVerifier(PromiscuousVerifier())
+        ssh.addHostKeyVerifier(SshHostKeyVerifier(trustDirectory))
         try {
             ssh.connect(host, sshPort)
             Log.d(TAG, "SSH TCP connected")
         } catch (e: Exception) {
+            runCatching { ssh.close() }
             Log.e(TAG, "SSH connect failed", e)
             throw e
         }
@@ -55,35 +61,53 @@ object SshTunnel {
                 Log.d(TAG, "SSH password auth ok")
             }
         } catch (e: Exception) {
+            runCatching { ssh.close() }
             Log.e(TAG, "SSH auth failed", e)
             throw e
         }
 
-        ssh.connection.keepAlive.keepAliveInterval = 60
+        var socket: ServerSocket? = null
+        try {
+            ssh.connection.keepAlive.keepAliveInterval = 60
 
-        // Find a free local port
-        val ss = ServerSocket(0)
-        localPort = ss.localPort
+            // Find a free local port
+            val ss = ServerSocket(0, 0, InetAddress.getByName("127.0.0.1"))
+            socket = ss
+            serverSocket = ss
+            localPort = ss.localPort
 
-        val forwarder = ssh.newLocalPortForwarder(
-            Parameters("127.0.0.1", localPort, "127.0.0.1", remoteApiPort),
-            ss
-        )
-        
-        Thread({
-            try { forwarder.listen() } catch (_: Exception) {}
-        }, "kismet-ssh-tunnel").also {
-            it.isDaemon = true
-            it.start()
+            val forwarder = ssh.newLocalPortForwarder(
+                Parameters("127.0.0.1", localPort, "127.0.0.1", remoteApiPort),
+                ss
+            )
+
+            Thread({
+                try { forwarder.listen() } catch (_: Exception) {}
+            }, "kismet-ssh-tunnel").also {
+                it.isDaemon = true
+                it.start()
+            }
+
+            sshClient = ssh
+            target = requestedTarget
+        } catch (e: Exception) {
+            runCatching { socket?.close() }
+            runCatching { ssh.close() }
+            serverSocket = null
+            localPort = -1
+            throw e
         }
-
-        sshClient = ssh
         return@withContext localPort
     }
-    
+
     fun disconnect() {
         val client = sshClient
         sshClient = null
+        val socket = serverSocket
+        serverSocket = null
+        localPort = -1
+        target = null
+        try { socket?.close() } catch (_: Exception) { }
         if (client != null) {
             Thread({
                 try {

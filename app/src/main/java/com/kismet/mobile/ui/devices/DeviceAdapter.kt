@@ -68,16 +68,16 @@ class DeviceAdapter(private val onClick: (Device) -> Unit = {}) : ListAdapter<De
 
             val captureTag = seenBy.mapNotNull { sourcesMap[it.uuid] }
                 .firstOrNull { src ->
-                    src.type.contains("ubertooth", true) ||
-                    src.type.contains("hackrf",    true) ||
-                    src.type.contains("rtl",       true) ||
-                    src.name.contains("hackrf",    true) ||
-                    src.name.contains("ubertooth", true)
+                    src.type.orEmpty().contains("ubertooth", true) ||
+                    src.type.orEmpty().contains("hackrf",    true) ||
+                    src.type.orEmpty().contains("rtl",       true) ||
+                    src.name.orEmpty().contains("hackrf",    true) ||
+                    src.name.orEmpty().contains("ubertooth", true)
                 }?.let { src ->
                     when {
-                        src.type.contains("ubertooth", true) || src.name.contains("ubertooth", true) -> "UBERTOOTH"
-                        src.type.contains("hackrf",    true) || src.name.contains("hackrf",    true) -> "HACKRF"
-                        src.type.contains("rtl",       true)                                         -> "RTL-SDR"
+                        src.type.orEmpty().contains("ubertooth", true) || src.name.orEmpty().contains("ubertooth", true) -> "UBERTOOTH"
+                        src.type.orEmpty().contains("hackrf",    true) || src.name.orEmpty().contains("hackrf",    true) -> "HACKRF"
+                        src.type.orEmpty().contains("rtl",       true)                                         -> "RTL-SDR"
                         else -> null
                     }
                 }

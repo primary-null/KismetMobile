@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KismetMobile</string>
-    <string name="about_footer"><![CDATA[v%1$s · <a href="https://github.com/primary-null/KismetMobile">github.com/primary-null/KismetMobile</a> · <a href="https://www.kismetwireless.net/">kismetwireless.net</a>]]></string>
+    <string name="about_footer"><![CDATA[v%1$s · Unofficial Kismet client · <a href="https://www.kismetwireless.net/">kismetwireless.net</a>]]></string>
+    <string name="create_campaign">Create campaign</string>
 </resources>

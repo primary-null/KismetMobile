@@ -122,7 +122,8 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
                         username = profile.sshUsername,
                         password = profile.sshPassword.ifEmpty { null },
                         privateKey = profile.sshPrivateKey.ifEmpty { null },
-                        remoteApiPort = profile.port
+                        remoteApiPort = profile.port,
+                        trustDirectory = java.io.File(getApplication<android.app.Application>().filesDir, "ssh_host_keys")
                     )
                     actualHost = "127.0.0.1"
                 }
@@ -232,8 +233,8 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
                     } else if (lastPollTime == 0L) {
                         lastPollTime = currentStatus?.timestampSec ?: (System.currentTimeMillis() / 1000)
                     }
-                    runCampaignAlerts(incomingDevices)
                 }
+                runCampaignAlerts(incomingDevices)
             }
             is Result.Error -> _error.postValue(result.message)
         }
@@ -273,9 +274,9 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
                 val existing = keys.toHashSet()
                 newDevices.forEach { device ->
                     if (device.key in existing) return@forEach
-                    val macMatch  = original.targetMacs.any  { (device.mac ?: "").equals(it.trim(), ignoreCase = true) }
-                    val ssidMatch = original.targetSsids.any { device.displayName.contains(it.trim(), ignoreCase = true) }
-                    if (macMatch || ssidMatch) {
+                    val macMatch = original.targetMacs.any { it.isNotBlank() && (device.mac ?: "").equals(it.trim(), ignoreCase = true) }
+                    val ssidMatch = original.targetSsids.any { it.isNotBlank() && device.displayName.contains(it.trim(), ignoreCase = true) }
+                    if ((macMatch || ssidMatch) && existing.add(device.key)) {
                         keys.add(device.key)
                         alerts.add(
                             FiredAlert(0, device.key, "HUNT: ${device.displayName} (${device.mac ?: "No MAC"})")
@@ -292,7 +293,7 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
             } else original
         }
         if (anyChanged) {
-            _campaigns.postValue(updated)
+            _campaigns.value = updated
         }
     }
 
@@ -407,7 +408,7 @@ class KismetViewModel(app: Application) : AndroidViewModel(app) {
         val wifi = scanner.scanWifi()
         val bt = scanner.scanBluetooth()
         val matched = SecondLatchMatcher.match(wifi + bt, _devices.value ?: emptyList())
-        _localSightings.postValue(matched)
+        _localSightings.value = matched
     }
 
     fun localConfirmCount(): Int = _localSightings.value?.size ?: 0

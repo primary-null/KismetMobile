@@ -22,9 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.window.layout.FoldingFeature
 import com.kismet.mobile.R
 import com.kismet.mobile.databinding.FragmentCampaignDetailBinding
-import com.kismet.mobile.model.AlertAction
-import com.kismet.mobile.model.AlertRule
-import com.kismet.mobile.model.AlertTrigger
 import com.kismet.mobile.model.Campaign
 import com.kismet.mobile.model.CampaignStatus
 import com.kismet.mobile.model.CampaignType
@@ -228,60 +225,13 @@ class CampaignDetailFragment : Fragment() {
         val tv  = binding.root.findViewById<TextView>(R.id.tv_rules_list) ?: return
         val btn = binding.root.findViewById<View>(R.id.btn_add_rule) ?: return
 
-        tv.text = if (c.alertRules.isEmpty()) "No rules. Tap + ADD to create one."
-        else c.alertRules.joinToString("\n") { rule ->
-            val v = if (rule.value.isNotEmpty()) " = ${rule.value}" else ""
-            "▸ ${rule.trigger.name}$v  [${rule.action.name}]"
+        val rules = c.alertRules.joinToString("\n") { rule ->
+            val value = if (rule.value.isNotEmpty()) " = ${rule.value}" else ""
+            "${rule.trigger.name}$value  [${rule.action.name}]"
         }
-
-        if (btn.tag != "wired") {
-            btn.tag = "wired"
-            btn.setOnClickListener { currentCampaign()?.let { showAddRuleDialog(it) } }
-        }
-    }
-
-    private fun showAddRuleDialog(c: Campaign) {
-        val triggers = AlertTrigger.values()
-        val labels = triggers.map { t ->
-            when (t) {
-                AlertTrigger.NEW_DEVICE       -> "NEW_DEVICE — any new device"
-                AlertTrigger.MAC_SEEN         -> "MAC_SEEN — specific MAC"
-                AlertTrigger.SSID_SEEN        -> "SSID_SEEN — SSID contains text"
-                AlertTrigger.SIGNAL_THRESHOLD -> "SIGNAL — min dBm (e.g. -50)"
-                AlertTrigger.CLIENT_COUNT     -> "CLIENT_COUNT — min client count"
-            }
-        }.toTypedArray()
-
-        var selectedIdx = 0
-        val valueInput = EditText(requireContext()).apply {
-            hint = "value (leave blank for NEW_DEVICE)"
-            setPadding(48, 24, 48, 16)
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add Alert Rule")
-            .setSingleChoiceItems(labels, 0) { _, which ->
-                selectedIdx = which
-                valueInput.hint = when (triggers[which]) {
-                    AlertTrigger.NEW_DEVICE       -> "(no value needed)"
-                    AlertTrigger.MAC_SEEN         -> "AA:BB:CC:DD:EE:FF"
-                    AlertTrigger.SSID_SEEN        -> "SSID substring"
-                    AlertTrigger.SIGNAL_THRESHOLD -> "-50"
-                    AlertTrigger.CLIENT_COUNT     -> "5"
-                }
-            }
-            .setView(valueInput)
-            .setPositiveButton("ADD") { _, _ ->
-                val rule = AlertRule(
-                    trigger = triggers[selectedIdx],
-                    value   = valueInput.text.toString().trim(),
-                    action  = AlertAction.NOTIFY
-                )
-                val cur = currentCampaign() ?: return@setPositiveButton
-                viewModel.updateCampaign(cur.copy(alertRules = cur.alertRules + rule))
-            }
-            .setNegativeButton("CANCEL", null)
-            .show()
+        tv.text = "Legacy Alert rules are disabled in this version." +
+            if (rules.isEmpty()) "" else "\n$rules"
+        btn.visibility = View.GONE
     }
 
     // --- WiGLE ---
@@ -324,6 +274,7 @@ class CampaignDetailFragment : Fragment() {
                 else
                     com.google.android.material.snackbar.Snackbar.make(b.root, "WiGLE Upload Failed: ${csv.body()?.message ?: csv.code()}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 val b = _binding ?: return@launch
                 if (!isAdded) return@launch
                 com.google.android.material.snackbar.Snackbar.make(b.root, "Error: ${e.message}", com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()

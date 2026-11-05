@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -32,6 +33,10 @@ class DevicesFragment : Fragment() {
     private val windowViewModel: WindowLayoutViewModel by activityViewModels()
     private lateinit var adapter: DeviceAdapter
     private var systemBarTop = 0
+
+    private val scanPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+        if (grants.isNotEmpty() && grants.values.all { it } && _binding != null) promptAndScan()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDevicesBinding.inflate(inflater, container, false)
@@ -120,18 +125,12 @@ class DevicesFragment : Fragment() {
                     }
                 }
                 if (needed.isNotEmpty()) {
-                    requestPermissions(needed.toTypedArray(), 101)
+                    scanPermissions.launch(needed.toTypedArray())
                 } else {
                     promptAndScan()
                 }
             }
         } catch (_: Exception) {}
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 101 && grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }) {
-            promptAndScan()
-        }
     }
 
     private fun promptAndScan() {

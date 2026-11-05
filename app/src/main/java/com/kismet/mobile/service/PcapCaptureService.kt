@@ -6,8 +6,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.Context
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.kismet.mobile.R
 import com.kismet.mobile.api.KismetClient
@@ -16,7 +18,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -24,7 +29,6 @@ class PcapCaptureService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var job: Job? = null
-    private var outputFile: File? = null
 
     companion object {
         const val CHANNEL_ID = "pcap_capture"
@@ -36,6 +40,15 @@ class PcapCaptureService : Service() {
         const val EXTRA_PASS = "pass"
         const val ACTION_STOP = "STOP"
         private const val NOTIF_ID = 42
+
+        fun start(context: Context, intent: Intent) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+            check(NotificationManagerCompat.from(context).areNotificationsEnabled() &&
+                manager.getNotificationChannel(CHANNEL_ID)?.importance != NotificationManager.IMPORTANCE_NONE) {
+                "Enable capture notifications in Android Settings first"
+            }
+            context.startForegroundService(intent)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -50,6 +63,9 @@ class PcapCaptureService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+
+        // Repeated taps must not orphan another stream or its output file.
+        if (job?.isActive == true) return START_NOT_STICKY
 
         try {
             startForeground(NOTIF_ID, buildNotif("Capturing packets…"))
@@ -67,7 +83,6 @@ class PcapCaptureService : Service() {
         val pass = intent?.getStringExtra(EXTRA_PASS) ?: ""
 
         val file = File(cacheDir, "kismet_capture_${System.currentTimeMillis()}.pcapng")
-        outputFile = file
 
         job = scope.launch {
             try {
@@ -79,7 +94,11 @@ class PcapCaptureService : Service() {
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                stopSelf()
+                withContext(NonCancellable + Dispatchers.Main) {
+                    if (file.exists() && file.length() > 0) notifyCaptureReady(file)
+                    else file.delete()
+                    stopSelf()
+                }
             }
         }
 
@@ -87,12 +106,12 @@ class PcapCaptureService : Service() {
     }
 
     override fun onDestroy() {
-        job?.cancel()
-        val file = outputFile
-        if (file != null && file.exists() && file.length() > 0) {
-            notifyCaptureReady(file)
-        }
+        scope.cancel()
         super.onDestroy()
+    }
+
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        stopSelf()
     }
 
     private fun notifyCaptureReady(file: File) {

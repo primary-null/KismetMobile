@@ -1,11 +1,15 @@
 package com.kismet.mobile.repository
 
+import com.google.gson.Gson
 import com.kismet.mobile.api.KismetApi
 import com.kismet.mobile.model.ChannelData
 import com.kismet.mobile.model.DataSource
 import com.kismet.mobile.model.Device
 import com.kismet.mobile.model.PhyStat
 import com.kismet.mobile.model.SystemStatus
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -23,6 +27,7 @@ class KismetRepository(private val api: KismetApi) {
             if (response.isSuccessful) Result.Success(Unit)
             else Result.Error("Login failed: ${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Connection failed")
         }
     }
@@ -34,6 +39,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("Status unavailable: ${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch status")
         }
     }
@@ -45,6 +51,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("Devices unavailable: ${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch devices")
         }
     }
@@ -56,6 +63,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch devices")
         }
     }
@@ -67,6 +75,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch phys")
         }
     }
@@ -78,6 +87,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch sources")
         }
     }
@@ -89,6 +99,7 @@ class KismetRepository(private val api: KismetApi) {
                 Result.Success(response.body()!!)
             else Result.Error("${response.code()}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(e.message ?: "Failed to fetch channels")
         }
     }
@@ -98,28 +109,40 @@ class KismetRepository(private val api: KismetApi) {
             val json = """{"hop":true}"""
             val r = api.setSourceChannel(uuid, json)
             if (r.isSuccessful) Result.Success(Unit) else Result.Error("${r.code()}")
-        } catch (e: Exception) { Result.Error(e.message ?: "Failed") }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.Error(e.message ?: "Failed")
+        }
     }
 
     suspend fun pauseSource(uuid: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val r = api.pauseSource(uuid)
             if (r.isSuccessful) Result.Success(Unit) else Result.Error("${r.code()}")
-        } catch (e: Exception) { Result.Error(e.message ?: "Failed") }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.Error(e.message ?: "Failed")
+        }
     }
 
     suspend fun resumeSource(uuid: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val r = api.resumeSource(uuid)
             if (r.isSuccessful) Result.Success(Unit) else Result.Error("${r.code()}")
-        } catch (e: Exception) { Result.Error(e.message ?: "Failed") }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.Error(e.message ?: "Failed")
+        }
     }
 
     suspend fun addSource(definition: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            val r = api.addSource("""{"definition":"$definition"}""")
+            val r = api.addSource(Gson().toJson(mapOf("definition" to definition)))
             if (r.isSuccessful) Result.Success(Unit) else Result.Error("${r.code()}")
-        } catch (e: Exception) { Result.Error(e.message ?: "Failed") }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.Error(e.message ?: "Failed")
+        }
     }
 
     suspend fun streamPcap(
@@ -138,15 +161,22 @@ class KismetRepository(private val api: KismetApi) {
             val body = response.body()!!
             var bytes = 0L
             val buf = ByteArray(8192)
-            body.byteStream().use { input ->
+            body.use {
+                val input = it.byteStream()
                 var read: Int
-                while (input.read(buf).also { read = it } != -1) {
+                val limit = 50L * 1024 * 1024
+                while (bytes < limit) {
+                    currentCoroutineContext().ensureActive()
+                    read = input.read(buf, 0, minOf(buf.size.toLong(), limit - bytes).toInt())
+                    if (read == -1) break
                     outputStream.write(buf, 0, read)
                     bytes += read
-                    if (bytes > 50 * 1024 * 1024) break // 50 MB cap
                 }
             }
             Result.Success(bytes)
-        } catch (e: Exception) { Result.Error(e.message ?: "Failed") }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.Error(e.message ?: "Failed")
+        }
     }
 }
