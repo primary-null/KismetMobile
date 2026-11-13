@@ -1,0 +1,11 @@
+# Public SHA-256 fingerprint of the KismetMobile release signing certificate.
+#
+# NOT YET ESTABLISHED: no release has been signed with the persistent release key.
+# tools/release/kismet_release.py refuses to sign or verify a release while this
+# file contains no fingerprint line.
+#
+# When the release key exists, add one line below this comment block: the 64
+# hexadecimal digits shown as "certificate SHA-256 digest" by
+#   apksigner verify --print-certs <a signed release APK>
+# Only ever commit the public fingerprint here; never a keystore, password or
+# private key.  See RELEASING.md.

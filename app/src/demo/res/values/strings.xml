@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The offline demo installs beside the standard app (separate application ID), so the launcher
+         label must tell them apart. -->
+    <string name="app_name">KismetMobile Demo</string>
+</resources>

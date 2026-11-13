@@ -60,3 +60,7 @@ proguard-project.txt
 # Lint
 lint-results*.xml
 lint-results*.html
+
+# Release staging output (unsigned/signed APKs, manifests): see RELEASING.md
+dist/
+__pycache__/

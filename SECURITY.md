@@ -2,7 +2,9 @@
 
 ## Supported Versions
 
-Security fixes target the latest version on the `main` branch.
+Security fixes target the latest version on the `main` branch and the newest release on the [Releases page](https://github.com/primary-null/KismetMobile/releases).
+
+Official APKs are signed with one persistent key whose SHA-256 fingerprint is in [signing/release-cert-sha256.txt](signing/release-cert-sha256.txt). An APK signed with any other certificate is not an official release; see the README for how to verify a download.
 
 ## Reporting a Vulnerability
 

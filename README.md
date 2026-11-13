@@ -4,9 +4,43 @@ An Android client for the [Kismet](https://github.com/kismetwireless/kismet) wir
 
 ![Version](https://img.shields.io/badge/version-1.4.0--rc1-blue) ![Android](https://img.shields.io/badge/Android-10%2B-green) ![API](https://img.shields.io/badge/API-29%2B-brightgreen) ![Foldable](https://img.shields.io/badge/foldable-ready-purple)
 
-Browse the [screenshot gallery](docs/index.html), or build the app with the instructions below.
+Signed APK publication is being prepared. Browse the [screenshot gallery](docs/index.html), or build the app yourself with the instructions below.
 
 This is an unofficial Kismet client and is under active development.
+
+---
+
+## Download and install
+
+**No signed APK has been published yet.** When the first release is published, its installable APKs will appear on the [Releases page](https://github.com/primary-null/KismetMobile/releases). A release marked **Pre-release** is a release candidate: a complete, signed build that is still being field-tested.
+
+Open the newest release and download a file from **Assets**:
+
+| File | Installs as | Use it to |
+|---|---|---|
+| `KismetMobile-<version>.apk` | KismetMobile (`com.kismet.mobile`) | Connect to your own Kismet server |
+| `KismetMobile-demo-<version>.apk` | KismetMobile Demo (`com.kismet.mobile.demo`) | Look around offline with synthetic data. Needs no server, installs beside the standard app and shares no data with it |
+
+Both need Android 10 (API 29) or newer. The files on the repository's **Actions** page are CI test builds signed with a throwaway key, not releases: do not install them.
+
+### Install
+
+1. Download the APK on your phone, or copy it there.
+2. Open it. Android asks you to allow installs from the app you opened it with (your browser or file manager); allow it for this install.
+3. Confirm the install. Android may warn that the app comes from outside Google Play, which is expected for a sideloaded app.
+4. Alternatively, with USB debugging enabled: `adb install KismetMobile-<version>.apk`.
+
+### Check your download
+
+- Each file on the release page shows a SHA-256 digest, and every release includes a `SHA256SUMS` file. Compare with `sha256sum --check SHA256SUMS` (macOS: `shasum -a 256 -c SHA256SUMS`; Windows PowerShell: `Get-FileHash <file> -Algorithm SHA256`).
+- Every release is signed with the same key. With the Android SDK build-tools, `apksigner verify --print-certs KismetMobile-<version>.apk` prints the signing certificate; its SHA-256 digest must equal the fingerprint in [signing/release-cert-sha256.txt](signing/release-cert-sha256.txt) and in the release notes. If it differs, do not install the file.
+- Releases marked **Immutable** can also be checked against GitHub's release attestation: `gh release verify-asset <tag> <file>`.
+
+### Update
+
+Download the newer APK and install it over the old one. Your saved servers, campaigns and captures stay, because Android only accepts an update that has the same package name, the same signing key and a higher version code. Do not uninstall first. A pre-release updates to the final release the same way, and Android refuses to replace a newer version with an older one.
+
+One-time exception: a build made before the first signed release (a CI test build, or an APK you built from source) is signed with a different key, so Android refuses to replace it ("App not installed as package conflicts with an existing package"). Backups and device transfer are disabled in this app, so uninstalling erases its data. Export what you need first (campaign evidence and captures), uninstall the old build once, then install the release.
 
 ---
 
@@ -117,7 +151,9 @@ On macOS or Linux:
 ./gradlew :app:assembleDebug :app:testStandardDebugUnitTest :app:testDemoDebugUnitTest :app:lintStandardDebug :app:lintDemoDebug
 ```
 
-The standard APK is `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. The offline demo APK is `app/build/outputs/apk/demo/debug/app-demo-debug.apk` and uses a separate application ID. Both debug APKs use the local Android debug key. Release builds are unsigned; add your own signing configuration to produce a signed release.
+The standard APK is `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. The offline demo APK is `app/build/outputs/apk/demo/debug/app-demo-debug.apk` and uses a separate application ID. Debug APKs are signed with your own local Android debug key, so they cannot update, or be updated by, the signed APKs from the Releases page; uninstalling one to install the other erases the app's data.
+
+Gradle's release variants (`:app:assembleStandardRelease`, `:app:assembleDemoRelease`) are shrunk and intentionally left unsigned. The signed releases are produced as described in [RELEASING.md](RELEASING.md), which also shows how to sign your own build with your own key.
 
 Install with `adb install -r <apk-path>`. See [testing](docs/TESTING.md) for the test tasks and the offline demo build.
 

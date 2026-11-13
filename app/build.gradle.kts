@@ -24,6 +24,10 @@ android {
 
     buildTypes {
         release {
+            // Deliberately no signingConfig: Gradle's release output stays unsigned, GitHub builds it, and the
+            // maintainer signs it with the persistent release key (RELEASING.md). A build that silently
+            // fell back to a debug key would install but could never be updated.
+            isDebuggable = false
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
